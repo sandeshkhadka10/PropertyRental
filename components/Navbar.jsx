@@ -14,7 +14,7 @@ const Navbar = () => {
 
 
     const pathname = usePathname();
-    console.log(pathname);
+    // console.log(pathname);
 
     return (
         <nav className='bg-blue-700 border-b border-blue-500'>
