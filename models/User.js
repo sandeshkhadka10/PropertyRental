@@ -18,9 +18,8 @@ const UserSchema = new Schema({
             type:Schema.Types.ObjectId,
             ref:'Property'
         }
-    ],
-    timestamps:true
-});
+    ],  
+},{timestamps:true});
 
 const User = models.user || model('User',UserSchema);
 

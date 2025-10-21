@@ -2,7 +2,7 @@ import {Schema,model,models} from "mongoose";
 
 const PropertySchema = new Schema({
     owner:{
-        type:Schema.Type.ObjectId,
+        type:Schema.Types.ObjectId,
         ref:"User",
         required:true
     },
@@ -79,9 +79,8 @@ const PropertySchema = new Schema({
         type:Boolean,
         default:false
     },
-    timestamps:true
-});
+},{timestamps:true});
 
-const Property = models.Property || model('Property',PropertySchema);
+const Property = models.Property || model('Property',PropertySchema,'properties');
 
 export default Property;
