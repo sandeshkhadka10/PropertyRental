@@ -1,6 +1,7 @@
 // SessionProvider provides session state like 
 // whether a user is logged in,
 // who they are, and their access token.
+'use client';
 import {SessionProvider} from 'next-auth/react';
 
 const AuthProvider = ({children})=>{
