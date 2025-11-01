@@ -214,6 +214,10 @@ const Navbar = () => {
                                             role='menuitem'
                                             tabIndex='-1'
                                             id='user-menu-item-2'
+                                            onClick={()=>{
+                                                setIsProfileMenuOpen(false);
+                                                signOut();
+                                            }}
                                         >
                                             Sign Out
                                         </button>
