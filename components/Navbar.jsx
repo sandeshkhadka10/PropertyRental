@@ -13,6 +13,9 @@ const Navbar = () => {
     // and track authentication status
     const { data: session } = useSession();
 
+    // using optional chaining to access nested object properties
+    const profileImage = session?.user?.image;
+
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
@@ -36,6 +39,8 @@ const Navbar = () => {
     }, []);
 
     // console.log(providers);
+    // console.log(session);
+    // console.log(profileImage);
 
     return (
         <nav className='bg-blue-700 border-b border-blue-500'>
@@ -167,8 +172,10 @@ const Navbar = () => {
                                         <span className='sr-only'>Open user menu</span>
                                         <Image
                                             className='h-8 w-8 rounded-full'
-                                            src={profileDefault}
+                                            src={profileImage}
                                             alt=''
+                                            width={0}
+                                            height={0}
                                         />
                                     </button>
                                 </div>
