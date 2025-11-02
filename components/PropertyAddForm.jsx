@@ -36,8 +36,34 @@ const PropertyAddForm = () =>{
         setMounted(true);
     },[]);
 
-    const handleChange = ()=>{
+    const handleChange = (e)=>{
+        const {name,value} = e.target;
+        // console.log(e.target.value);
 
+        // for nested object
+        if(name.includes('.')){
+            const [outerKey,innerKey] = name.split('.');
+            // console.log(outerKey,innerKey);
+            /*
+             address.city
+             outerKey = address
+             innerKey = city
+             It will come when name is splited
+            */
+
+            setFields((prevFields)=>({
+                ...prevFields, // keep everything else the same
+                [outerKey]:{ // outerKey = "address"
+                    ...prevFields[outerKey], // copy all properties inside "address"
+                    [innerKey]:value //update "city" with new value
+                }
+            }))
+        }else{
+            setFields((prevFields)=>({
+                ...prevFields,
+                [name]:value
+            }))
+        }
     }
 
     const handleAmenitiesChange = ()=>{
