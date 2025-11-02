@@ -90,9 +90,24 @@ const PropertyAddForm = () =>{
         }));
     }
 
-    const handleImageChange = ()=>{
+    const handleImageChange = (e)=>{
+        const {files} = e.target;
+        // console.log(files);
 
-    } 
+        // Clone images array
+        const updatedImages = [...fields.images];
+
+        // Add new files to the array
+        for(const file of files){
+            updatedImages.push(file);
+        }
+
+        // Update state with array of images
+        setFields((prevFields)=>({
+            ...prevFields,
+            images:updatedImages
+        }));
+    };
     
     return mounted &&
         <form>
