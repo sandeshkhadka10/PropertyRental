@@ -66,8 +66,28 @@ const PropertyAddForm = () =>{
         }
     }
 
-    const handleAmenitiesChange = ()=>{
+    const handleAmenitiesChange = (e)=>{
+        const {value,checked} = e.target;
 
+        // Clone the current array
+        const updatedAmenities = [...fields.amenities];
+
+        if(checked){
+            // Add value to array
+            updatedAmenities.push(value);
+        }else{
+            // Remove value from array
+            const index = updatedAmenities.indexOf(value);
+            if(index !== -1){
+                updatedAmenities.splice(index,1);
+            }
+        }
+
+        // Update state with updated array
+        setFields((prevFields)=>({
+            ...prevFields,
+            amenities:updatedAmenities
+        }));
     }
 
     const handleImageChange = ()=>{
