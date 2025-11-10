@@ -11,8 +11,8 @@ const PropertyAddForm = () =>{
         description:'',
         location:{
             street:'',
-            city:'',
-            state:'',
+            city:'test',
+            state:'test',
             zipcode:''
         },
         beds:'3',
@@ -109,8 +109,9 @@ const PropertyAddForm = () =>{
         }));
     };
     
-    return mounted &&
-        <form>
+    return mounted &&(
+        // Since we are uploading image so we have to encType='mutlipart/form-data'
+        <form action="/api/properties" method='POST' encType='mutlipart/form-data'>
                         <h2 className="text-3xl text-center font-semibold mb-6">
                             Add Property
                         </h2>
@@ -556,6 +557,7 @@ const PropertyAddForm = () =>{
                                 accept="image/*"
                                 multiple
                                 onChange={handleImageChange}
+                                required
                             />
                         </div>
 
@@ -568,7 +570,7 @@ const PropertyAddForm = () =>{
                             </button>
                         </div>
                     </form>
-    
+    );
 }
 
 export default PropertyAddForm;
