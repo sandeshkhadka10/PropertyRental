@@ -1,5 +1,6 @@
 import connectDB from "@/config/database";
 import Property from "@/models/Property";
+import {getSessionUser} from "@/utils/getSessionUser.js"
 
 // GET /api/properties
 export const GET = async (request)=>{
@@ -17,6 +18,16 @@ export const GET = async (request)=>{
 // POST /api/properties
 export const POST = async (request)=>{
     try{
+        await connectDB();
+ 
+        // current user logged in ko session id retrieve garna help garcha
+        // jun ko logic chai utils/getSessionUser.js ma cha
+        const sessionUser = await getSessionUser();
+        if(!sessionUser || !sessionUser.userId){
+            return new Response('UserId is required',{status:401});
+        }
+        const {userId} = sessionUser;
+        
         const formData = await request.formData();
         // console.log(formData.get('name'));
 
@@ -52,12 +63,18 @@ export const POST = async (request)=>{
                 email:formData.get('seller_info.email'),
                 phone:formData.get('seller_info.phone')
             },
-            images
+            owner:userId,
+            // images
         };
+        const newProperty = new Property(propertyData);
+        await newProperty.save();
+
 
         console.log(propertyData);
 
-        return new Response(JSON.stringify({message:"Successfull"}),{status:200});
+        // return new Response(JSON.stringify({message:"Successfull"}),{status:200});
+
+        return Response.redirect(`${process.env.NEXTAUTH_URL}/properties/${newProperty._id}`);
     }catch(error){
         return new Response('Failed to add property',{status:500});
     }
