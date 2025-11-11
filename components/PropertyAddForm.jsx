@@ -110,8 +110,8 @@ const PropertyAddForm = () =>{
     };
     
     return mounted &&(
-        // Since we are uploading image so we have to encType='mutlipart/form-data'
-        <form action="/api/properties" method='POST' encType='mutlipart/form-data'>
+        // Since we are uploading image so we have to encType='multipart/form-data'
+        <form action="/api/properties" method='POST' encType='multipart/form-data'>
                         <h2 className="text-3xl text-center font-semibold mb-6">
                             Add Property
                         </h2>
