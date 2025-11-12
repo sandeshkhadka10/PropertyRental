@@ -6,6 +6,7 @@ export const GET = async (request,{params})=>{
     try{
         await connectDB();
 
+        // console.log(params);
         const userId = params.userId;
         if(!userId){
             return new Response('User ID is required',{status:400});
