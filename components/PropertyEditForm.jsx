@@ -45,6 +45,18 @@ const PropertyEditForm = () =>{
         const fetchPropertyData = async()=>{
             try{
                 const propertyData = await fetchProperty(id);
+
+                // check for null values in rates and if it is null then make empty string
+                if(propertyData && propertyData.rates){
+                    const defaultRates = {...propertyData.rates}; // get all the rates previous data
+                    for(const rate in defaultRates){
+                        if(defaultRates[rate] === null){
+                            defaultRates[rate] = '';
+                        }
+                    }
+                    propertyData.rates = defaultRates;
+                }
+
                 setFields(propertyData);
             }catch(error){
                 console.log(error);
