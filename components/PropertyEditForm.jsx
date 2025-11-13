@@ -121,12 +121,32 @@ const PropertyEditForm = () =>{
         }));
     }
 
-    const handleSubmit = async()=>{
+    const handleSubmit = async(e)=>{
+        e.preventDefault();
 
+        const formData = new FormData(e.target);
+
+        try{
+            const res = await fetch(`/api/properties/${id}`,{
+                method:'PUT',
+                body:formData
+            });
+
+            if(res.status === 200){
+                router.push(`/properties/${id}`);
+            }else if(res.status === 401 || res.status === 403){
+                toast.error('Permission Denied');
+            }else{
+                toast.error('Something went wrong');
+            }
+        }catch(error){
+            toast.error('Something went wrong');
+            console.log(error);
+        }
     };
     
     return mounted && !loading &&(
-        <form onClick={handleSubmit}>
+        <form onSubmit={handleSubmit}>
                         <h2 className="text-3xl text-center font-semibold mb-6">
                             Edit Property
                         </h2>
