@@ -5,7 +5,7 @@ import {toast} from 'react-toastify';
 import {fetchProperty} from '@/utils/requests.js';
 
 const PropertyEditForm = () =>{
-    const {id} = useParams;
+    const {id} = useParams();
     const router = useRouter();
 
     // here i am using mounted to make sure the UI renders
