@@ -19,7 +19,7 @@
     "react-dom": "19.1.0",
     "react-geocode": "^2.0.1",
     "react-icons": "^5.5.0",
-    "react-map-gl": "^8.1.0",
+    "react-map-gl": "^6.1.21",
     "react-spinners": "^0.17.0",
     "react-toastify": "^11.0.5"
   },
