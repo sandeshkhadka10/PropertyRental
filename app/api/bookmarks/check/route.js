@@ -25,21 +25,10 @@ export const POST = async(request)=>{
 
         // Check if the user has already bookmarked the property
         let isBookMarked = user.bookmarks.includes(propertyId);
-        let message;
-        if(isBookMarked){
-            // if already bookmarked, remove it
-            user.bookmarks.pull(propertyId);
-            message = 'Bookmark removed successfully';
-            isBookMarked = false;
-        }else{
-            // if not bookmarked, add it
-            user.bookmarks.push(propertyId);
-            message = 'Bookmark added successfully';
-            isBookMarked = true;
-        }
+        
         await user.save();
 
-        return new Response(JSON.stringify({message, isBookMarked}),{status:200});
+        return new Response(JSON.stringify({isBookMarked}),{status:200});
     }catch(error){
         console.error(error);
         return new Response('Something went wrong',{status:500});
