@@ -4,12 +4,14 @@ import Property from "@/models/Property";
 import {getSessionUser} from "@/utils/getSessionUser";
 
 // these is used during the deployment
+// since i have to look these data freshly to check whether it is real or not
 // export const dynamic = 'force-dynamic';
 
 export const POST = async(request)=>{
     try{
         await connectDB();
 
+        // property id matra fetch garcha request gareko kura bata
         const {propertyId} = await request.json();
 
         const sessionUser = await getSessionUser();
