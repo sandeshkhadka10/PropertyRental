@@ -1,30 +1,44 @@
 'use client';
-import {useState,useEffect} from 'react';
-import Spinner from './Spinner';
+import { useState, useEffect } from 'react';
+import Spinner from '@/components/Spinner';
+import Message from '@/components/Message';
+import Link from 'next/link';
 
-const Messages = ()=>{
-    const [messages,setMessages] = useState([]);
-    const [loading,setLoading] = useState(true);
+const Messages = () => {
+    const [messages, setMessages] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    useEffect(()=>{
-        const getMessages = async()=>{
-            try{
+    useEffect(() => {
+        const getMessages = async () => {
+            try {
                 const res = await fetch('/api/messages');
-                if(res.status === 200){
+                if (res.status === 200) {
                     const data = res.json();
                     setMessages(data);
                 }
-            }catch(error){
+            } catch (error) {
                 console.log('Error fetching messages: ', error);
+            } finally {
+                setLoading(false);
             }
         }
         getMessages();
-    },[]);
+    }, []);
 
-    return(
-        <div>
-            Message
-        </div>
+    return (
+        <section className="bg-blue-50">
+            <div className="container m-auto py-24 max-w-6xl">
+                <div
+                    className="bg-white px-6 py-8 mb-4 shadow-md rounded-md border m-4 md:m-0"
+                >
+                    <h1 className="text-3xl font-bold mb-4">Your Messages</h1>
+
+                    <div className="space-y-4">
+                       <Message/>
+                    </div>
+                </div>
+            </div>
+        </section>
     )
 }
 
