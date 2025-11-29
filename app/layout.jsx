@@ -2,8 +2,9 @@ import '@/assets/styles/globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import AuthProvider from '@/components/AuthProvider';
-import { ToastContainer} from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { GlobalProvider } from '@/context/GlobalContext';
 
 export const metadata = {
     title: 'PropertyPlus | Find The Perfect |Rental',
@@ -13,16 +14,18 @@ export const metadata = {
 
 const MainLayout = ({ children }) => {
     return (
-        <AuthProvider>
-            <html lang="en">
-                <body>
-                    <Navbar />
-                    <main>{children}</main>
-                    <Footer />
-                    <ToastContainer/>
-                </body>
-            </html>
-        </AuthProvider>
+        <GlobalProvider>
+            <AuthProvider>
+                <html lang="en">
+                    <body>
+                        <Navbar />
+                        <main>{children}</main>
+                        <Footer />
+                        <ToastContainer />
+                    </body>
+                </html>
+            </AuthProvider>
+        </GlobalProvider>
     )
 };
 
