@@ -2,6 +2,7 @@
 import {useState,useEffect} from 'react';
 import PropertyCard from '@/components/PropertyCard.jsx';
 import Spinner from '@/components/Spinner';
+import Pagination from '@/components/Pagination';
 
 const Properties = () => {
     const [properties,setProperties] = useState([]);
@@ -21,7 +22,7 @@ const Properties = () => {
                 }
                 const data = await res.json();
                 setProperties(data.properties);
-                setTotalItems(data.totalItems);
+                setTotalItems(data.total);
             }catch(error){
                 console.log(error);
             }finally{
@@ -29,7 +30,12 @@ const Properties = () => {
             }
         };
         fetchProperties();
-    },[])
+    },[page,pageSize]);
+
+    // updates the current page state
+    const handlePageChange = (newPage) =>{
+        setPage(newPage);
+    };
 
     return loading ? (<Spinner/>) : (
         <section className="px-4 py-6">
@@ -46,6 +52,7 @@ const Properties = () => {
                         </div>
                     )}
             </div>
+            <Pagination page={page} pageSize={pageSize} totalItems={totalItems} onPageChange={handlePageChange}/>
         </section>
     )
 }
