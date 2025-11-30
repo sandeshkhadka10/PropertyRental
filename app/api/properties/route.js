@@ -8,8 +8,31 @@ export const GET = async (request)=>{
     try{
         await connectDB();
 
-        const properties = await Property.find({});
-        return new Response(JSON.stringify(properties),{status:200});
+        // reads the page no from the req query string and if the user doesn't provide ?page=.., then by default it goes to page 1
+        const page = request.nextUrl.searchParams.get('page') || 1;
+
+        // reads how many items i.e properties to return per page and if the user does't provide then by default it will be 3
+        const pageSize = request.nextUrl.searchParams.get('pageSize') || 3;
+
+        // it calculates how many items to skip before MongoDB starts returning results
+        const skip = (page - 1) * pageSize;
+
+        // count all the properties in the database
+        const total = await Property.countDocuments({});
+        // console.log(total);
+
+        // this line returns only the needed items for the current page
+        // .skip(skip)-> ignores the previous pages item
+        // .limit(pageSize)-> returns only the number of items per page
+        const properties = await Property.find({}).skip(skip).limit(pageSize);
+
+        // After pagination we have return these
+        const result = {
+            total,
+            properties
+        };
+
+        return new Response(JSON.stringify(result),{status:200});
     }catch(error){
         console.log(error);
         return new Response('Something went wrong',{status:500});

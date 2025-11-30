@@ -3,8 +3,17 @@ import Link from 'next/link';
 import {fetchProperties} from '@/utils/requests.js';
 
 const HomeProperties = async() => {
-    const properties = await fetchProperties()
-    const recentProperties = properties.sort(() => Math.random() - Math.random()).slice(0, 3);
+    // After pagination we are using data var here.
+    // Since pagination needs extra information such as
+    /*
+     total number of properties
+     current page
+     total page
+     pageSize
+     next/prev page indicators
+    */
+    const data = await fetchProperties();
+    const recentProperties = data.properties.sort(() => Math.random() - Math.random()).slice(0, 3);
 
     return (
         <>
@@ -14,7 +23,7 @@ const HomeProperties = async() => {
                         Recent Properties
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {recentProperties === 0 ?
+                        {recentProperties.length === 0 ?
                             (
                                 <p>No properties Found</p>
                             )
