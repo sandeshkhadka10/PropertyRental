@@ -8,7 +8,7 @@ import { GlobalProvider } from '@/context/GlobalContext';
 import 'photoswipe/dist/photoswipe.css';
 
 export const metadata = {
-    title: 'PropertyPlus | Find The Perfect |Rental',
+    title: 'PropertyRental | Find The Perfect |Rental',
     description: 'Find your dream rental property',
     keywords: 'rental, find rentals, find properties'
 };
