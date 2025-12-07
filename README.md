@@ -17,6 +17,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 - **User-Friendly Interface:** Modern, intuitive UI built entirely with JavaScript and Next.js.
 - **Search & Filter:** Easily find properties by location, price, property type, and more.
 - **Pagination:** Quickly navigate through large numbers of listings with seamless pagination.
+- **Bookmark Properties:** Logged-in users can bookmark/save their favorite properties for quick access later.
 - **Google Authentication:** Secure, one-click sign-in and sign-up via Google for faster access and improved security.
 - **Contact Integration:** Connect directly with property owners or agents.
 - **Map Integration** (if implemented): Visualize property locations on an interactive map.
@@ -27,6 +28,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 - **Frontend:** JavaScript (100%)
 - **Authentication:** Google OAuth 2.0
 - **Pagination Handling:** Client-side and/or server-side pagination for property lists
+- **Bookmark System:** Personalized property bookmarks for each authenticated user
 - **State Management:** (e.g., Redux, Zustand, Context API—update as appropriate)
 - **Styling:** (e.g., CSS Modules, TailwindCSS, Styled Components—update as appropriate)
 - **Fonts:** Uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font)
@@ -49,7 +51,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
-If you need to set up Google Authentication:
+### Google Authentication Setup
 
 1. Go to [Google Cloud Console](https://console.developers.google.com/), create a new project, and configure OAuth 2.0 credentials.
 2. Whitelist your app's redirect URI(s).
@@ -60,6 +62,7 @@ If you need to set up Google Authentication:
 - Browse and filter properties on the homepage.
 - Use pagination controls to navigate listings.
 - Authenticate using your Google account to post a property or save favorites.
+- Bookmark properties you like for future reference.
 - Directly contact sellers or agents through the platform.
 
 ## Folder Structure
