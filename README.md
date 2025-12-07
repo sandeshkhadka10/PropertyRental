@@ -25,7 +25,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 ## Technology Stack
 
 - **Framework:** [Next.js](https://nextjs.org) (bootstrapped via `create-next-app`)
-- **Frontend:** React
+- **Frontend:** React inside Next.js
 - **Backend:** Node.js via Next.js API routes/ server components
 - **Authentication:** Google OAuth 2.0
 - **State Management:** Context API—update
