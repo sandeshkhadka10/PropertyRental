@@ -54,7 +54,21 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
-### Look at the .env.example for generating necessary credentials key
+### These are the credentials key that is need to be generated to run these project
+
+- NEXT_PUBLIC_DOMAIN=
+- NEXT_PUBLIC_API_DOMAIN=
+- MONGODB_URL=
+- GOOGLE_CLIENT_ID=
+- GOOGLE_CLIENT_SECRET=
+- NEXTAUTH_URL=
+- NEXTAUTH_URL_INTERNAL=
+- NEXTAUTH_SECRET=
+- CLOUDINARY_CLOUD_NAME=
+- CLOUDINARY_API_KEY=
+- CLOUDINARY_API_SECRET=
+- NEXT_PUBLIC_MAPBOX_TOKEN=
+- NEXT_PUBLIC_GOOGLE_GEOCODING_API_KEY=
 
 ## Learn More
 
