@@ -56,6 +56,7 @@ You can start editing the page by modifying `app/page.js`. The page auto-updates
 
 ### These are the credentials key that is need to be generated to run these project
 
+
 - NEXT_PUBLIC_DOMAIN=
 - NEXT_PUBLIC_API_DOMAIN=
 - MONGODB_URL=
