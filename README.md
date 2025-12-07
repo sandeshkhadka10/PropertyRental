@@ -12,15 +12,22 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Features
 
-- **Comprehensive Property Listings:** Browse curated listings of rental and sale properties.
-- **Easy Property Posting:** Users can submit new property listings.
-- **User-Friendly Interface:** Modern, intuitive UI built entirely with React inside Next.js.
-- **Search & Filter:** Easily find properties by location and property type.
-- **Pagination:** Quickly navigate through large numbers of listings with seamless pagination.
-- **Bookmark Properties:** Logged-in users can bookmark/save their favorite properties for quick access later.
-- **Google Authentication:** Secure, one-click sign-in and sign-up via Google for faster access and improved security.
-- **Contact Integration:** Connect directly with property owners or agents.
-- **Map Integration:** Visualize property locations on an interactive map.
+- User authentication with Google & Next Auth
+- User authorization
+- Route protection
+- User profile with user listings
+- Property Listing CRUD
+- Property image upload (Multiple)
+- Property search
+- Internal messages with 'unread' notifications
+- Photoswipe image gallery
+- Mapbox maps
+- Toast notifications
+- Property bookmarking / saved properties
+- Property sharing to social media
+- Loading spinners
+- Responsive design (Tailwind)
+- Custom 404 page
 
 ## Technology Stack
 
@@ -28,9 +35,6 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 - **Frontend:** React inside Next.js
 - **Backend:** Node.js via Next.js API routes/ server components
 - **Authentication:** Google OAuth 2.0
-- **State Management:** Context API—update
-- **Styling:** TailwindCSS
-- **Fonts:** Uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font)
 
 ## Getting Started
 
@@ -50,34 +54,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
-### Google Authentication Setup
-
-1. Go to [Google Cloud Console](https://console.developers.google.com/), create a new project, and configure OAuth 2.0 credentials.
-2. Whitelist your app's redirect URI(s).
-3. Copy your `Client ID` and add it into your project config (via `.env.local` or a dedicated config file).
-
-## Usage
-
-- Browse and filter properties on the homepage.
-- Use pagination controls to navigate listings.
-- Authenticate using your Google account to post a property or save favorites.
-- Bookmark properties you like for future reference.
-- Directly contact sellers or agents through the platform.
-
-## Folder Structure
-
-```
-PropertyRental/
-├── app/
-│   ├── page.js
-│   └── ...
-├── components/
-├── public/
-├── styles/
-├── package.json
-└── README.md
-```
-*(Adjust to your actual structure as needed.)*
+### Look at the .env.example for generating necessary credentials key
 
 ## Learn More
 
