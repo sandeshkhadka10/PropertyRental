@@ -8,29 +8,28 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Overview
 
-**PropertyRental** is a full-featured, JavaScript-based web application designed to streamline the process of finding and listing real estate properties. Whether you're looking to rent, buy, or list properties, this platform serves as a centralized hub, making discovery and management effortless for users.
+**PropertyRental** is a full-featured, JavaScript-based web application designed to streamline the process of finding, listing real estate properties and contacting the relevant owners. Whether you're looking to rent, buy, or list properties, this platform serves as a centralized hub, making discovery and management effortless for users.
 
 ## Features
 
 - **Comprehensive Property Listings:** Browse curated listings of rental and sale properties.
-- **Easy Property Posting:** Users and agents can submit new property listings.
-- **User-Friendly Interface:** Modern, intuitive UI built entirely with JavaScript and Next.js.
-- **Search & Filter:** Easily find properties by location, price, property type, and more.
+- **Easy Property Posting:** Users can submit new property listings.
+- **User-Friendly Interface:** Modern, intuitive UI built entirely with React inside Next.js.
+- **Search & Filter:** Easily find properties by location and property type.
 - **Pagination:** Quickly navigate through large numbers of listings with seamless pagination.
 - **Bookmark Properties:** Logged-in users can bookmark/save their favorite properties for quick access later.
 - **Google Authentication:** Secure, one-click sign-in and sign-up via Google for faster access and improved security.
 - **Contact Integration:** Connect directly with property owners or agents.
-- **Map Integration** (if implemented): Visualize property locations on an interactive map.
+- **Map Integration:** Visualize property locations on an interactive map.
 
 ## Technology Stack
 
 - **Framework:** [Next.js](https://nextjs.org) (bootstrapped via `create-next-app`)
-- **Frontend:** JavaScript (100%)
+- **Frontend:** React
+- **Backend:** Node.js via Next.js API routes/ server components
 - **Authentication:** Google OAuth 2.0
-- **Pagination Handling:** Client-side and/or server-side pagination for property lists
-- **Bookmark System:** Personalized property bookmarks for each authenticated user
-- **State Management:** (e.g., Redux, Zustand, Context API—update as appropriate)
-- **Styling:** (e.g., CSS Modules, TailwindCSS, Styled Components—update as appropriate)
+- **State Management:** Context API—update
+- **Styling:** TailwindCSS
 - **Fonts:** Uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font)
 
 ## Getting Started
