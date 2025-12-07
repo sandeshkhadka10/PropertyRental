@@ -2,80 +2,95 @@
 
 Listing all the real estate property here so that users don't have to look everywhere.
 
+---
+
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+
 ## Overview
 
-**PropertyRental** is a JavaScript-based web project designed to streamline the process of finding and listing real estate properties. Whether you're looking to rent, buy, or showcase your property, this repository serves as a centralized platform for property listings, making discovery effortless for users.
+**PropertyRental** is a full-featured, JavaScript-based web application designed to streamline the process of finding and listing real estate properties. Whether you're looking to rent, buy, or list properties, this platform serves as a centralized hub, making discovery and management effortless for users.
 
 ## Features
 
-- **Comprehensive Property Listings**: Browse curated listings of rental and sale properties from verified sources.
-- **Easy Property Posting**: Users and agents can list their own properties quickly.
-- **User-Friendly Interface**: Modern and intuitive design built with JavaScript for smooth navigation.
-- **Search & Filter**: Powerful search and filtering options to find the right property based on location, price, type, and more.
-- **Pagination**: Efficiently browse large numbers of property listings with built-in pagination to improve performance and user experience.
-- **Google Authentication**: Sign in securely using your Google account. Simplifies account creation and enhances security.
-- **Contact Integration**: Direct contact options for inquiries.
-- **Map Integration** (optional/if present): Visualize property locations on an interactive map.
+- **Comprehensive Property Listings:** Browse curated listings of rental and sale properties.
+- **Easy Property Posting:** Users and agents can submit new property listings.
+- **User-Friendly Interface:** Modern, intuitive UI built entirely with JavaScript and Next.js.
+- **Search & Filter:** Easily find properties by location, price, property type, and more.
+- **Pagination:** Quickly navigate through large numbers of listings with seamless pagination.
+- **Google Authentication:** Secure, one-click sign-in and sign-up via Google for faster access and improved security.
+- **Contact Integration:** Connect directly with property owners or agents.
+- **Map Integration** (if implemented): Visualize property locations on an interactive map.
 
 ## Technology Stack
 
-- **Frontend**: JavaScript (core language)
-- **Authentication**: Google OAuth 2.0
-- **Pagination Handling**: Implemented in the frontend for listing pages.
-- **Other Libraries/Frameworks**: (List any frameworks like React, Vue, Express, etc. here if used)
-- **Backend**: (Specify if applicable; e.g., Node.js, or "Static Site" if only frontend)
-- **Database**: (Specify if applicable; e.g., MongoDB, MySQL, etc.)
+- **Framework:** [Next.js](https://nextjs.org) (bootstrapped via `create-next-app`)
+- **Frontend:** JavaScript (100%)
+- **Authentication:** Google OAuth 2.0
+- **Pagination Handling:** Client-side and/or server-side pagination for property lists
+- **State Management:** (e.g., Redux, Zustand, Context API—update as appropriate)
+- **Styling:** (e.g., CSS Modules, TailwindCSS, Styled Components—update as appropriate)
+- **Fonts:** Uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font)
 
 ## Getting Started
 
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) (if applicable)
-- [npm](https://www.npmjs.com/) (if applicable)
-- Google Developer account for OAuth credentials (if deploying your own version)
-
-### Installation
+First, run the development server:
 
 ```bash
-git clone https://github.com/sandeshkhadka10/PropertyRental.git
-cd PropertyRental
-npm install   # if package.json exists
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-### Running the App
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-```bash
-npm start     # or the relevant script to run the project
-```
+You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
-### Google Authentication Setup
+If you need to set up Google Authentication:
 
-1. Go to [Google Cloud Console](https://console.developers.google.com/), create a new project, and set up OAuth credentials.
+1. Go to [Google Cloud Console](https://console.developers.google.com/), create a new project, and configure OAuth 2.0 credentials.
 2. Whitelist your app's redirect URI(s).
-3. Copy your Client ID and paste it into the project configuration as required (see `.env` or config files).
+3. Copy your `Client ID` and add it into your project config (via `.env.local` or a dedicated config file).
 
 ## Usage
 
-- Browse properties directly from the homepage.
-- Use search, filters, and pagination controls for tailored results and efficient exploration.
-- Authenticate easily with Google to post property listings or save favorites.
-- List a property via the "Post Property" option (may require login).
-- Contact sellers or agents via their provided details.
+- Browse and filter properties on the homepage.
+- Use pagination controls to navigate listings.
+- Authenticate using your Google account to post a property or save favorites.
+- Directly contact sellers or agents through the platform.
 
 ## Folder Structure
 
 ```
 PropertyRental/
-├── public/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   ├── utils/
+├── app/
+│   ├── page.js
 │   └── ...
+├── components/
+├── public/
+├── styles/
 ├── package.json
 └── README.md
 ```
-(*Edit according to actual structure*)
+*(Adjust to your actual structure as needed.)*
+
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) – learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) – an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) – your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
 ## Contributing
 
