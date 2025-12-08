@@ -24,8 +24,7 @@
     "react-photoswipe-gallery": "^4.0.0",
     "react-share": "^5.2.2",
     "react-spinners": "^0.17.0",
-    "react-toastify": "^11.0.5",
-    "zod": "^4.1.13"
+    "react-toastify": "^11.0.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.14",
