@@ -1,8 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
-import {toast} from 'react-toastify';
-import {useRouter} from 'next/navigation';
-import { propertySchema } from '@/lib/propertySchema';
+import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
 
 const PropertyAddForm = () => {
     // here i am using mounted to make sure the UI renders
@@ -35,7 +34,6 @@ const PropertyAddForm = () => {
         images: []
     });
     const router = useRouter();
-    const [errors, setErrors] = useState({});
     
     useEffect(() => {
         setMounted(true);
@@ -180,9 +178,9 @@ const PropertyAddForm = () => {
                     name="name"
                     className="border rounded w-full py-2 px-3 mb-2"
                     placeholder="eg. Beautiful Apartment In Miami"
-                    required
                     value={fields.name}
                     onChange={handleChange}
+                    required
                 />
             </div>
             <div className="mb-4">
