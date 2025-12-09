@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import Hero from '@/components/Hero.jsx';
 import InfoBoxes from '@/components/InfoBoxes.jsx';
 import HomeProperties from '@/components/HomeProperties';
