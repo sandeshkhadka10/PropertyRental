@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
-import {propertySchema} from '@/lib/propertySchema';
+import { propertySchema } from '@/lib/propertySchema';
 
 const PropertyAddForm = () => {
     // here i am using mounted to make sure the UI renders
@@ -34,8 +34,9 @@ const PropertyAddForm = () => {
         },
         images: []
     });
+    const [errors, setErrors] = useState({});
     const router = useRouter();
-    
+
     useEffect(() => {
         setMounted(true);
     }, []);
@@ -116,30 +117,49 @@ const PropertyAddForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const formData = new FormData(e.target);
-
         try {
+            setErrors({}); // clear the previous errors
+
+            // Convert and clean data before validation
             const parseData = propertySchema.parse({
-                ...fields,
-                beds:Number(fields.beds),
-                baths:Number(fields.baths),
-                square_feet:Number(fields.square_feet),
-                rates:{
-                    weekly:fields.rates.weekly?Number(fields.rates.weekly):undefined,
-                    monthly:fields.rates.monthly?Number(fields.rates.monthly):undefined,
-                    nightly:fields.rates.nightly?Number(fields.rates.nightly):undefined
-                }
+                type: fields.type,
+                name: fields.name,
+                description: fields.description || undefined,
+                location: {
+                    street: fields.location.street || undefined,
+                    city: fields.location.city,
+                    state: fields.location.state,
+                    zipcode: fields.location.zipcode || undefined
+                },
+                beds: fields.beds ? Number(fields.beds) : undefined,
+                baths: fields.baths ? Number(fields.baths) : undefined,
+                square_feet: fields.square_feet ? Number(fields.square_feet) : undefined,
+                amenities: fields.amenities,
+                rates: {
+                    weekly: fields.rates.weekly ? Number(fields.rates.weekly) : undefined,
+                    monthly: fields.rates.monthly ? Number(fields.rates.monthly) : undefined,
+                    nightly: fields.rates.nightly ? Number(fields.rates.nightly) : undefined
+                },
+                seller_info: {
+                    name: fields.seller_info.name || undefined,
+                    email: fields.seller_info.email,
+                    phone: fields.seller_info.phone || undefined
+                },
+                images: fields.images
             });
+
+            // Build FormData after validation passes
             const formData = new FormData();
-            for(const key in parseData){
-                if(key === 'location' || key === 'rates' || key === 'seller_info'){
-                    formData.append(key,JSON.stringify(parseData[key]))
-                }else if(key === 'images'){
-                    parseData.images.forEach((file)=>formData.append('images',file));
-                }else if(key === 'amenities'){
-                    parseData.amenities.forEach((item)=>formData.append('amenities[]',item));
-                }else{
-                    formData.append(key,parseData[key]);
+
+            for (const key in parseData) {
+                if (key === 'location' || key === 'rates' || key === 'seller_info') {
+                    formData.append(key, JSON.stringify(parseData[key]));
+                } else if (key === 'images') {
+                    parseData.images.forEach((file) => formData.append('images', file));
+                } else if (key === 'amenities') {
+                    parseData.amenities?.forEach((item) => formData.append('amenities[]', item));
+                } else {
+                    formData.append(key, parseData[key]);
                 }
             }
 
@@ -157,6 +177,22 @@ const PropertyAddForm = () => {
                 toast.error('Something went wrong');
             }
         } catch (error) {
+            console.log('Full error:', error); // Debug log
+
+            // Check if it's a Zod validation error
+            if (error.name === 'ZodError' && error.issues) {
+                const fieldErrors = {};
+                error.issues.forEach((issue) => {
+                    const path = issue.path.join('.');
+                    fieldErrors[path] = issue.message;
+                });
+                setErrors(fieldErrors);
+                console.log('Validation errors:', fieldErrors); // Debug log
+                toast.error('Please fix the validation errors');
+                return;
+            }
+
+            // Handle other errors
             toast.error('Something went wrong');
             console.log(error);
         }
@@ -180,10 +216,10 @@ const PropertyAddForm = () => {
                     id="type"
                     name="type"
                     className="border rounded w-full py-2 px-3"
-                    required
                     value={fields.type}
                     onChange={handleChange}
                 >
+                    <option value=''>Select Type</option>
                     <option value="Apartment">Apartment</option>
                     <option value="Condo">Condo</option>
                     <option value="House">House</option>
@@ -192,6 +228,7 @@ const PropertyAddForm = () => {
                     <option value="Studio">Studio</option>
                     <option value="Other">Other</option>
                 </select>
+                {errors.type && <p className='text-red-500 text-sm'>{errors.type}</p>}
             </div>
             <div className="mb-4">
                 <label className="block text-gray-700 font-bold mb-2"
@@ -205,8 +242,8 @@ const PropertyAddForm = () => {
                     placeholder="eg. Beautiful Apartment In Miami"
                     value={fields.name}
                     onChange={handleChange}
-                    required
                 />
+                {errors.name && <p className='text-red-500 text-sm'>{errors.name}</p>}
             </div>
             <div className="mb-4">
                 <label
@@ -242,20 +279,20 @@ const PropertyAddForm = () => {
                     name="location.city"
                     className="border rounded w-full py-2 px-3 mb-2"
                     placeholder="City"
-                    required
                     value={fields.location.city}
                     onChange={handleChange}
                 />
+                {errors['location.city'] && <p className='text-red-500 text-sm'>{errors['location.city']}</p>}
                 <input
                     type="text"
                     id="state"
                     name="location.state"
                     className="border rounded w-full py-2 px-3 mb-2"
                     placeholder="State"
-                    required
                     value={fields.location.state}
                     onChange={handleChange}
                 />
+                {errors['location.state'] && <p className='text-red-500 text-sm'>{errors['location.state']}</p>}
                 <input
                     type="text"
                     id="zipcode"
@@ -277,10 +314,10 @@ const PropertyAddForm = () => {
                         id="beds"
                         name="beds"
                         className="border rounded w-full py-2 px-3"
-                        required
                         value={fields.beds}
                         onChange={handleChange}
                     />
+                    {errors.beds && <p className='text-red-500 text-sm'>{errors.beds}</p>}
                 </div>
                 <div className="w-full sm:w-1/3 px-2">
                     <label htmlFor="baths" className="block text-gray-700 font-bold mb-2"
@@ -291,10 +328,10 @@ const PropertyAddForm = () => {
                         id="baths"
                         name="baths"
                         className="border rounded w-full py-2 px-3"
-                        required
                         value={fields.baths}
                         onChange={handleChange}
                     />
+                    {errors.baths && <p className='text-red-500 text-sm'>{errors.baths}</p>}
                 </div>
                 <div className="w-full sm:w-1/3 pl-2">
                     <label
@@ -307,10 +344,10 @@ const PropertyAddForm = () => {
                         id="square_feet"
                         name="square_feet"
                         className="border rounded w-full py-2 px-3"
-                        required
                         value={fields.square_feet}
                         onChange={handleChange}
                     />
+                    {errors.square_feet && <p className='text-red-500 text-sm'>{errors.square_feet}</p>}
                 </div>
             </div>
 
@@ -577,7 +614,6 @@ const PropertyAddForm = () => {
                     name="seller_info.email"
                     className="border rounded w-full py-2 px-3"
                     placeholder="Email address"
-                    required
                     value={fields.seller_info.email}
                     onChange={handleChange}
                 />
@@ -611,7 +647,6 @@ const PropertyAddForm = () => {
                     accept="image/*"
                     multiple
                     onChange={handleImageChange}
-                    required
                 />
             </div>
 
