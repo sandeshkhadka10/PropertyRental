@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
+import {propertySchema} from '@/lib/propertySchema';
 
 const PropertyAddForm = () => {
     // here i am using mounted to make sure the UI renders
@@ -118,6 +119,30 @@ const PropertyAddForm = () => {
         const formData = new FormData(e.target);
 
         try {
+            const parseData = propertySchema.parse({
+                ...fields,
+                beds:Number(fields.beds),
+                baths:Number(fields.baths),
+                square_feet:Number(fields.square_feet),
+                rates:{
+                    weekly:fields.rates.weekly?Number(fields.rates.weekly):undefined,
+                    monthly:fields.rates.monthly?Number(fields.rates.monthly):undefined,
+                    nightly:fields.rates.nightly?Number(fields.rates.nightly):undefined
+                }
+            });
+            const formData = new FormData();
+            for(const key in parseData){
+                if(key === 'location' || key === 'rates' || key === 'seller_info'){
+                    formData.append(key,JSON.stringify(parseData[key]))
+                }else if(key === 'images'){
+                    parseData.images.forEach((file)=>formData.append('images',file));
+                }else if(key === 'amenities'){
+                    parseData.amenities.forEach((item)=>formData.append('amenities[]',item));
+                }else{
+                    formData.append(key,parseData[key]);
+                }
+            }
+
             const res = await fetch(`/api/properties`, {
                 method: 'POST',
                 body: formData
