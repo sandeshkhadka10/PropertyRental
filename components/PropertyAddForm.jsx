@@ -124,26 +124,26 @@ const PropertyAddForm = () => {
             const parseData = propertySchema.parse({
                 type: fields.type,
                 name: fields.name,
-                description: fields.description || undefined,
+                description: fields.description,
                 location: {
-                    street: fields.location.street || undefined,
+                    street: fields.location.street,
                     city: fields.location.city,
                     state: fields.location.state,
-                    zipcode: fields.location.zipcode || undefined
+                    zipcode: fields.location.zipcode
                 },
-                beds: fields.beds ? Number(fields.beds) : undefined,
-                baths: fields.baths ? Number(fields.baths) : undefined,
-                square_feet: fields.square_feet ? Number(fields.square_feet) : undefined,
+                beds: fields.beds,
+                baths: fields.baths,
+                square_feet: fields.square_feet,
                 amenities: fields.amenities,
                 rates: {
-                    weekly: fields.rates.weekly ? Number(fields.rates.weekly) : undefined,
-                    monthly: fields.rates.monthly ? Number(fields.rates.monthly) : undefined,
-                    nightly: fields.rates.nightly ? Number(fields.rates.nightly) : undefined
+                    weekly: fields.rates.weekly,
+                    monthly: fields.rates.monthly,
+                    nightly: fields.rates.nightly
                 },
                 seller_info: {
-                    name: fields.seller_info.name || undefined,
+                    name: fields.seller_info.name,
                     email: fields.seller_info.email,
-                    phone: fields.seller_info.phone || undefined
+                    phone: fields.seller_info.phone
                 },
                 images: fields.images
             });
@@ -177,7 +177,7 @@ const PropertyAddForm = () => {
                 toast.error('Something went wrong');
             }
         } catch (error) {
-            console.log('Full error:', error); // Debug log
+            // console.log('Full error:', error); // Debug log
 
             // Check if it's a Zod validation error
             if (error.name === 'ZodError' && error.issues) {
@@ -187,8 +187,8 @@ const PropertyAddForm = () => {
                     fieldErrors[path] = issue.message;
                 });
                 setErrors(fieldErrors);
-                console.log('Validation errors:', fieldErrors); // Debug log
-                toast.error('Please fix the validation errors');
+                // console.log('Validation errors:', fieldErrors); // Debug log
+                // toast.error('Please fix the validation errors');
                 return;
             }
 
@@ -256,10 +256,11 @@ const PropertyAddForm = () => {
                     name="description"
                     className="border rounded w-full py-2 px-3"
                     rows="4"
-                    placeholder="Add an optional description of your property"
+                    placeholder="Add a description of your property"
                     value={fields.description}
                     onChange={handleChange}
                 ></textarea>
+                {errors.description && <p className='text-red-500 text-sm'>{errors.description}</p>}
             </div>
 
             <div className="mb-4 bg-blue-50 p-4">
@@ -273,6 +274,7 @@ const PropertyAddForm = () => {
                     value={fields.location.street}
                     onChange={handleChange}
                 />
+                {errors['location.street'] && <p className='text-red-500 text-sm'>{errors['location.street']}</p>}
                 <input
                     type="text"
                     id="city"
@@ -302,6 +304,7 @@ const PropertyAddForm = () => {
                     value={fields.location.zipcode}
                     onChange={handleChange}
                 />
+                {errors['location.zipcode'] && <p className='text-red-500 text-sm'>{errors['location.zipcode']}</p>}
             </div>
 
             <div className="mb-4 flex flex-wrap">
@@ -541,11 +544,12 @@ const PropertyAddForm = () => {
                         <label htmlFor="amenity_coffee_maker">Coffee Maker</label>
                     </div>
                 </div>
+                {errors.amenities && <p className='text-red-500 text-sm'>{errors.amenities}</p>}
             </div>
 
             <div className="mb-4 bg-blue-50 p-4">
                 <label className="block text-gray-700 font-bold mb-2"
-                >Rates (Leave blank if not applicable)</label
+                >Rates</label
                 >
                 <div
                     className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4"
@@ -560,6 +564,7 @@ const PropertyAddForm = () => {
                             value={fields.rates.weekly}
                             onChange={handleChange}
                         />
+                        {errors['rates.weekly'] && <p className='text-red-500 text-sm ml-2'>{errors['rates.weekly']}</p>}
                     </div>
                     <div className="flex items-center">
                         <label htmlFor="monthly_rate" className="mr-2">Monthly</label>
@@ -571,6 +576,7 @@ const PropertyAddForm = () => {
                             value={fields.rates.monthly}
                             onChange={handleChange}
                         />
+                        {errors['rates.monthly'] && <p className='text-red-500 text-sm ml-2'>{errors['rates.monthly']}</p>}
                     </div>
                     <div className="flex items-center">
                         <label htmlFor="nightly_rate" className="mr-2">Nightly</label>
@@ -582,8 +588,9 @@ const PropertyAddForm = () => {
                             value={fields.rates.nightly}
                             onChange={handleChange}
                         />
+                        {errors['rates.nightly'] && <p className='text-red-500 text-sm ml-2'>{errors['rates.nightly']}</p>}
                     </div>
-                </div>
+                </div> 
             </div>
 
             <div className="mb-4">
@@ -601,6 +608,7 @@ const PropertyAddForm = () => {
                     value={fields.seller_info.name}
                     onChange={handleChange}
                 />
+                {errors['seller_info.name'] && <p className='text-red-500 text-sm'>{errors['seller_info.name']}</p>}
             </div>
             <div className="mb-4">
                 <label
@@ -617,6 +625,7 @@ const PropertyAddForm = () => {
                     value={fields.seller_info.email}
                     onChange={handleChange}
                 />
+                {errors['seller_info.email'] && <p className='text-red-500 text-sm'>{errors['seller_info.email']}</p>}
             </div>
             <div className="mb-4">
                 <label
@@ -633,6 +642,7 @@ const PropertyAddForm = () => {
                     value={fields.seller_info.phone}
                     onChange={handleChange}
                 />
+                {errors['seller_info.phone'] && <p className='text-red-500 text-sm'>{errors['seller_info.phone']}</p>}
             </div>
 
             <div className="mb-4">
@@ -648,6 +658,7 @@ const PropertyAddForm = () => {
                     multiple
                     onChange={handleImageChange}
                 />
+                {errors.images && <p className='text-red-500 text-sm'>{errors.images}</p>}
             </div>
 
             <div>
