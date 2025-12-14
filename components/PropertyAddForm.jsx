@@ -120,7 +120,7 @@ const PropertyAddForm = () => {
         try {
             setErrors({}); // clear the previous errors
 
-            // Convert and clean data before validation
+            // take messy form input -> check it -> clean it -> make it safe
             const parseData = propertySchema.parse({
                 type: fields.type,
                 name: fields.name,
@@ -148,9 +148,13 @@ const PropertyAddForm = () => {
                 images: fields.images
             });
 
-            // Build FormData after validation passes
+            // it is used to send mixed data i.e text + numbers + arrays + objects + files
             const formData = new FormData();
-
+            
+            /*
+              FormData can only handle key-value pairs where the value is string, blob/files.
+              FormData doesn't support Objects, Arrays, Numbers, Booleans directly.
+            */
             for (const key in parseData) {
                 if (key === 'location' || key === 'rates' || key === 'seller_info') {
                     formData.append(key, JSON.stringify(parseData[key]));
