@@ -62,12 +62,27 @@ const PropertyAddForm = () => {
                     ...prevFields[outerKey], // copy all properties inside "address"
                     [innerKey]: value //update "city" with new value
                 }
-            }))
+            }));
+
+            // clear the error message for this nested filed
+            setErrors((prevErrors)=>{
+                const newErrors = {...prevErrors};
+                delete newErrors[`${outerKey}.${innerKey}`];
+                return newErrors;
+            });
+
         } else {
             setFields((prevFields) => ({
                 ...prevFields,
                 [name]: value
-            }))
+            }));
+
+            // clear the error message for this field
+            setErrors((prevErrors)=>{
+                const newErrors = {...prevErrors};
+                delete newErrors[name];
+                return newErrors;
+            });
         }
     }
 
@@ -93,6 +108,13 @@ const PropertyAddForm = () => {
             ...prevFields,
             amenities: updatedAmenities
         }));
+
+        // clear the error message for amentities when amenities is selected
+        setErrors((prevErrors)=>{
+            const newErrors = {...prevErrors};
+            delete newErrors['amenities'];
+            return newErrors;
+        });
     }
 
     const handleImageChange = (e) => {
@@ -112,6 +134,13 @@ const PropertyAddForm = () => {
             ...prevFields,
             images: updatedImages
         }));
+
+        // clear error message for images when images is selected
+        setErrors((prevErrors)=>{
+            const newErrors = {...prevErrors};
+            delete newErrors['images'];
+            return newErrors;
+        });
     };
 
     const handleSubmit = async (e) => {
