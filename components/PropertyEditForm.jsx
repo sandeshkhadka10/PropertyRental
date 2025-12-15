@@ -95,6 +95,11 @@ const PropertyEditForm = () => {
             setErrors((prevErrors)=>{
                 const newErrors = {...prevErrors};
                 delete newErrors[`${outerKey}.${innerKey}`];
+
+                if (outerKey === 'rates') {
+                    delete newErrors['rates'];
+                }
+
                 return newErrors;
             });
         } else {
@@ -606,6 +611,7 @@ const PropertyEditForm = () => {
                          {errors['rates.nightly'] && <p className='text-red-500 text-sm ml-2'>{errors['rates.nightly']}</p>}
                     </div>
                 </div>
+            {errors.rates && <p className='text-red-500 text-sm mt-2'>{errors.rates}</p>}    
             </div>
 
             <div className="mb-4">
