@@ -65,9 +65,14 @@ const PropertyAddForm = () => {
             }));
 
             // clear the error message for this nested filed
-            setErrors((prevErrors)=>{
-                const newErrors = {...prevErrors};
+            setErrors((prevErrors) => {
+                const newErrors = { ...prevErrors };
                 delete newErrors[`${outerKey}.${innerKey}`];
+
+                // If it's a rates field, also clear the parent rates error
+                if (outerKey === 'rates') {
+                    delete newErrors['rates'];
+                }
                 return newErrors;
             });
 
@@ -78,8 +83,8 @@ const PropertyAddForm = () => {
             }));
 
             // clear the error message for this field
-            setErrors((prevErrors)=>{
-                const newErrors = {...prevErrors};
+            setErrors((prevErrors) => {
+                const newErrors = { ...prevErrors };
                 delete newErrors[name];
                 return newErrors;
             });
@@ -110,8 +115,8 @@ const PropertyAddForm = () => {
         }));
 
         // clear the error message for amentities when amenities is selected
-        setErrors((prevErrors)=>{
-            const newErrors = {...prevErrors};
+        setErrors((prevErrors) => {
+            const newErrors = { ...prevErrors };
             delete newErrors['amenities'];
             return newErrors;
         });
@@ -136,8 +141,8 @@ const PropertyAddForm = () => {
         }));
 
         // clear error message for images when images is selected
-        setErrors((prevErrors)=>{
-            const newErrors = {...prevErrors};
+        setErrors((prevErrors) => {
+            const newErrors = { ...prevErrors };
             delete newErrors['images'];
             return newErrors;
         });
@@ -179,7 +184,7 @@ const PropertyAddForm = () => {
 
             // it is used to send mixed data i.e text + numbers + arrays + objects + files
             const formData = new FormData();
-            
+
             /*
               FormData can only handle key-value pairs where the value is string, blob/files.
               FormData doesn't support Objects, Arrays, Numbers, Booleans directly.
@@ -597,7 +602,7 @@ const PropertyAddForm = () => {
                             value={fields.rates.weekly}
                             onChange={handleChange}
                         />
-                        {errors['rates.weekly'] && <p className='text-red-500 text-sm ml-2'>{errors['rates.weekly']}</p>}
+                    {errors['rates.weekly'] && <p className='text-red-500 text-sm ml-2'>{errors['rates.weekly']}</p>}
                     </div>
                     <div className="flex items-center">
                         <label htmlFor="monthly_rate" className="mr-2">Monthly</label>
@@ -609,7 +614,7 @@ const PropertyAddForm = () => {
                             value={fields.rates.monthly}
                             onChange={handleChange}
                         />
-                        {errors['rates.monthly'] && <p className='text-red-500 text-sm ml-2'>{errors['rates.monthly']}</p>}
+                    {errors['rates.monthly'] && <p className='text-red-500 text-sm ml-2'>{errors['rates.monthly']}</p>}
                     </div>
                     <div className="flex items-center">
                         <label htmlFor="nightly_rate" className="mr-2">Nightly</label>
@@ -621,9 +626,10 @@ const PropertyAddForm = () => {
                             value={fields.rates.nightly}
                             onChange={handleChange}
                         />
-                        {errors['rates.nightly'] && <p className='text-red-500 text-sm ml-2'>{errors['rates.nightly']}</p>}
+                    {errors['rates.nightly'] && <p className='text-red-500 text-sm ml-2'>{errors['rates.nightly']}</p>}
                     </div>
-                </div> 
+                </div>
+                {errors.rates && <p className='text-red-500 text-sm mt-2'>{errors.rates}</p>}
             </div>
 
             <div className="mb-4">
