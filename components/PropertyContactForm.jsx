@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { FaPaperPlane } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useSession } from 'next-auth/react';
+import { contactSchema, propertySchema } from '@/lib/contactSchema';
 
 const PropertyContactForm = ({ property }) => {
     const { data: session } = useSession();
@@ -12,6 +13,27 @@ const PropertyContactForm = ({ property }) => {
     const [message, setMessage] = useState('');
     const [phone, setPhone] = useState('');
     const [wasSubmitted, setWasSubmitted] = useState(false);
+    const [errors, setErrors] = useState({});
+
+    const handleChange = (field, value) => {
+        // Update the appropriate state
+        if (field === 'name') {
+            setName(value);
+        } else if (field === 'email') {
+            setEmail(value);
+        } else if (field === 'phone') {
+            setPhone(value);
+        } else if (field === 'message') {
+            setMessage(value);
+        }
+        
+        // Remove error for this specific field
+        setErrors((prevErrors) => {
+            const newErrors = { ...prevErrors };
+            delete newErrors[field];
+            return newErrors;
+        });
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -25,6 +47,17 @@ const PropertyContactForm = ({ property }) => {
             property: property._id
         }
         try {
+            setErrors({});
+
+            const parseData = contactSchema.parse({
+                name,
+                email,
+                phone,
+                message
+            });
+
+            // const formData = new FormData();
+
             const res = await fetch('/api/messages', {
                 method: 'POST',
                 headers: {
@@ -44,6 +77,16 @@ const PropertyContactForm = ({ property }) => {
                 toast.error('Error sending form');
             }
         } catch (error) {
+            if (error.name === 'ZodError' && error.issues) {
+                const fieldErrors = {};
+                error.issues.forEach((issue) => {
+                    const path = issue.path.join('.');
+                    fieldErrors[path] = issue.message;
+                });
+                setErrors(fieldErrors);
+                return;
+            }
+
             console.log(error);
             toast.error('Error sending form');
         } finally {
@@ -84,10 +127,10 @@ const PropertyContactForm = ({ property }) => {
                                         id='name'
                                         type='text'
                                         placeholder='Enter your name'
-                                        required
                                         value={name}
-                                        onChange={(e) => setName(e.target.value)}
+                                        onChange={(e) => handleChange('name', e.target.value)}
                                     />
+                                    {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
                                 </div>
                                 <div className="mb-4">
                                     <label
@@ -101,10 +144,10 @@ const PropertyContactForm = ({ property }) => {
                                         id="email"
                                         type="email"
                                         placeholder="Enter your email"
-                                        required
                                         value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
+                                        onChange={(e) => handleChange('email', e.target.value)}
                                     />
+                                    {errors.email && <p className='text-red-500 text-sm'>{errors.email}</p>}
                                 </div>
                                 <div className='mb-4'>
                                     <label
@@ -119,8 +162,9 @@ const PropertyContactForm = ({ property }) => {
                                         type='text'
                                         placeholder='Enter your phone number'
                                         value={phone}
-                                        onChange={(e) => setPhone(e.target.value)}
+                                        onChange={(e) => handleChange('phone', e.target.value)}
                                     />
+                                    {errors.phone && <p className='text-red-500 text-sm'>{errors.phone}</p>}
                                 </div>
                                 <div className="mb-4">
                                     <label
@@ -134,8 +178,9 @@ const PropertyContactForm = ({ property }) => {
                                         id="message"
                                         placeholder="Enter your message"
                                         value={message}
-                                        onChange={(e) => setMessage(e.target.value)}
+                                        onChange={(e) => handleChange('message', e.target.value)}
                                     ></textarea>
+                                    {errors.message && <p className='text-red-500 text-sm'>{errors.message}</p>}
                                 </div>
                                 <div>
                                     <button
