@@ -59,7 +59,23 @@ const PropertyEditForm = () => {
                     propertyData.rates = defaultRates;
                 }
 
-                setFields(propertyData);
+                // merge fetched data with default state
+                setFields({
+                    ...defaultFields,
+                    ...propertyData,
+                    location: {
+                        ...defaultFields.location,
+                        ...propertyData.location,
+                    },
+                    rates: {
+                        ...defaultFields.rates,
+                        ...propertyData.rates,
+                    },
+                    seller_info: {
+                        ...defaultFields.seller_info,
+                        ...propertyData.seller_info,
+                    },
+                });
             } catch (error) {
                 console.log(error);
             } finally {
@@ -92,8 +108,8 @@ const PropertyEditForm = () => {
                 }
             }));
 
-            setErrors((prevErrors)=>{
-                const newErrors = {...prevErrors};
+            setErrors((prevErrors) => {
+                const newErrors = { ...prevErrors };
                 delete newErrors[`${outerKey}.${innerKey}`];
 
                 if (outerKey === 'rates') {
@@ -108,8 +124,8 @@ const PropertyEditForm = () => {
                 [name]: value
             }));
 
-            setErrors((prevErrors)=>{
-                const newErrors = {...prevErrors};
+            setErrors((prevErrors) => {
+                const newErrors = { ...prevErrors };
                 delete newErrors[name];
                 return newErrors;
             });
@@ -139,8 +155,8 @@ const PropertyEditForm = () => {
             amenities: updatedAmenities
         }));
 
-        setErrors((prevErrors)=>{
-            const newErrors = {...prevErrors};
+        setErrors((prevErrors) => {
+            const newErrors = { ...prevErrors };
             delete newErrors['amenities'];
             return newErrors;
         });
@@ -148,8 +164,6 @@ const PropertyEditForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        const formData = new FormData(e.target);
 
         try {
             setErrors({});
@@ -280,7 +294,7 @@ const PropertyEditForm = () => {
                     value={fields.description}
                     onChange={handleChange}
                 ></textarea>
-                 {errors.description && <p className='text-red-500 text-sm'>{errors.description}</p>}
+                {errors.description && <p className='text-red-500 text-sm'>{errors.description}</p>}
             </div>
 
             <div className="mb-4 bg-blue-50 p-4">
@@ -294,7 +308,7 @@ const PropertyEditForm = () => {
                     value={fields.location.street}
                     onChange={handleChange}
                 />
-                 {errors['location.street'] && <p className='text-red-500 text-sm'>{errors['location.street']}</p>}
+                {errors['location.street'] && <p className='text-red-500 text-sm'>{errors['location.street']}</p>}
                 <input
                     type="text"
                     id="city"
@@ -354,7 +368,7 @@ const PropertyEditForm = () => {
                         value={fields.baths}
                         onChange={handleChange}
                     />
-                     {errors.baths && <p className='text-red-500 text-sm'>{errors.baths}</p>}
+                    {errors.baths && <p className='text-red-500 text-sm'>{errors.baths}</p>}
                 </div>
                 <div className="w-full sm:w-1/3 pl-2">
                     <label
@@ -608,10 +622,10 @@ const PropertyEditForm = () => {
                             value={fields.rates.nightly}
                             onChange={handleChange}
                         />
-                         {errors['rates.nightly'] && <p className='text-red-500 text-sm ml-2'>{errors['rates.nightly']}</p>}
+                        {errors['rates.nightly'] && <p className='text-red-500 text-sm ml-2'>{errors['rates.nightly']}</p>}
                     </div>
                 </div>
-            {errors.rates && <p className='text-red-500 text-sm mt-2'>{errors.rates}</p>}    
+                {errors.rates && <p className='text-red-500 text-sm mt-2'>{errors.rates}</p>}
             </div>
 
             <div className="mb-4">

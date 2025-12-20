@@ -28,7 +28,7 @@ export const DELETE = async(request,{params})=>{
     try{
         await connectDB();
 
-        const propertyId = params.id;
+        const {id:propertyId} = await params;
 
         const sessionUser = await getSessionUser();
 
