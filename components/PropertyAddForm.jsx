@@ -195,7 +195,7 @@ const PropertyAddForm = () => {
                 } else if (key === 'images') {
                     parseData.images.forEach((file) => formData.append('images', file));
                 } else if (key === 'amenities') {
-                    parseData.amenities?.forEach((item) => formData.append('amenities[]', item));
+                    parseData.amenities?.forEach((item) => formData.append('amenities', item));
                 } else {
                     formData.append(key, parseData[key]);
                 }
