@@ -29,9 +29,32 @@ const PropertyMap = ({ property }) => {
   useEffect(() => {
     const fetchCoords = async () => {
       try {
-        const res = await fromAddress(
-          `${property.location.street} ${property.location.city} ${property.location.state} ${property.location.zipcode}`
-        );
+        const location = property?.location || {};
+        const hasCoords =
+          location.lat !== undefined &&
+          location.lng !== undefined &&
+          location.lat !== null &&
+          location.lng !== null &&
+          location.lat !== '' &&
+          location.lng !== '';
+
+        const latValue = Number(location.lat);
+        const lngValue = Number(location.lng);
+
+        if (hasCoords && Number.isFinite(latValue) && Number.isFinite(lngValue)) {
+          setLat(latValue);
+          setLng(lngValue);
+          setViewport({
+            ...viewport,
+            latitude: latValue,
+            longitude: lngValue,
+          });
+          setLoading(false);
+          return;
+        }
+
+        const address = `${location.city || ''} ${location.state || ''}`.trim();
+        const res = await fromAddress(address);
 
         //  Check for results
         if (res.results.length === 0) {

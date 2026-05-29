@@ -18,17 +18,17 @@ const PropertySchema = new Schema({
         type:String
     },
     location:{
-        street:{
-            type:String
-        },
         city:{
             type:String
         },
         state:{
             type:String
         },
-        zipcode:{
-            type:String
+        lat:{
+            type:Number
+        },
+        lng:{
+            type:Number
         }
     },
     beds:{

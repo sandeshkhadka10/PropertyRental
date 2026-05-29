@@ -17,10 +17,10 @@ const PropertyEditForm = () =>{
         name:'',
         description:'',
         location:{
-            street:'',
             city:'',
             state:'',
-            zipcode:''
+            lat:'',
+            lng:''
         },
         beds:'',
         baths:'',
@@ -39,6 +39,68 @@ const PropertyEditForm = () =>{
     });
     const [loading,setLoading] = useState(true);
     const [errors,setErrors] = useState({});
+    const [locationStatus, setLocationStatus] = useState('idle');
+
+    const getCurrentPosition = (options) =>
+        new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, options);
+        });
+
+    const handleGetCurrentLocation = async () => {
+        if (!navigator.geolocation) {
+            toast.error('Geolocation is not supported in this browser');
+            return;
+        }
+
+        try {
+            setLocationStatus('loading');
+            let position;
+
+            // First try high-accuracy GPS, then fall back to faster network-based location.
+            try {
+                position = await getCurrentPosition({
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0,
+                });
+            } catch {
+                position = await getCurrentPosition({
+                    enableHighAccuracy: false,
+                    timeout: 20000,
+                    maximumAge: 60000,
+                });
+            }
+
+            const { latitude, longitude } = position.coords;
+
+            setFields((prevFields) => ({
+                ...prevFields,
+                location: {
+                    ...prevFields.location,
+                    lat: latitude,
+                    lng: longitude,
+                },
+            }));
+
+            setLocationStatus('success');
+        } catch (error) {
+            console.log(error);
+            setLocationStatus('error');
+            if (error?.code === 1) {
+                toast.error('Location access denied. Please allow location permission in your browser.');
+                return;
+            }
+            if (error?.code === 2) {
+                toast.error('Location unavailable right now. Try again in an open area or with better network.');
+                return;
+            }
+            if (error?.code === 3) {
+                toast.error('Location request timed out. Please try again.');
+                return;
+            }
+            toast.error('Unable to get your current location');
+        }
+    };
 
     useEffect(()=>{
         setMounted(true);
@@ -59,7 +121,13 @@ const PropertyEditForm = () =>{
                     propertyData.rates = defaultRates;
                 }
 
-                setFields(propertyData);
+                setFields((prevFields) => ({
+                    ...propertyData,
+                    location: {
+                        ...prevFields.location,
+                        ...(propertyData.location || {}),
+                    },
+                }));
             }catch(error){
                 console.log(error);
             }finally{
@@ -162,10 +230,10 @@ const PropertyEditForm = () =>{
                 name: fields.name,
                 description: fields.description,
                 location: {
-                    street: fields.location.street,
                     city: fields.location.city,
                     state: fields.location.state,
-                    zipcode: fields.location.zipcode
+                    lat: fields.location.lat,
+                    lng: fields.location.lng
                 },
                 beds: fields.beds,
                 baths: fields.baths,
@@ -303,17 +371,23 @@ const PropertyEditForm = () =>{
                         </div>
 
                         <div className="mb-4 bg-blue-50 p-4">
-                            <label className="block text-gray-700 font-bold mb-2">Location</label>
-                            <input
-                                type="text"
-                                id="street"
-                                name="location.street"
-                                className="border rounded w-full py-2 px-3 mb-2"
-                                placeholder="Street"
-                                value={fields.location.street}
-                                onChange={handleChange}
-                            />
-                            {errors['location.street'] && <p className='text-red-500 text-sm'>{errors['location.street']}</p>}
+                            <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                                <label className="block text-gray-700 font-bold">Location</label>
+                                <button
+                                    type="button"
+                                    className="bg-blue-600 text-white px-3 py-1 rounded"
+                                    onClick={handleGetCurrentLocation}
+                                    disabled={locationStatus === 'loading'}
+                                >
+                                    {locationStatus === 'loading' ? 'Getting Location...' : 'Use Current Location'}
+                                </button>
+                            </div>
+                            {locationStatus === 'success' && (
+                                <p className="text-sm text-green-700 mb-2">Current location saved.</p>
+                            )}
+                            {locationStatus === 'error' && (
+                                <p className="text-sm text-red-600 mb-2">Unable to get current location.</p>
+                            )}
                             <input
                                 type="text"
                                 id="city"
@@ -329,21 +403,11 @@ const PropertyEditForm = () =>{
                                 id="state"
                                 name="location.state"
                                 className="border rounded w-full py-2 px-3 mb-2"
-                                placeholder="State"
+                                placeholder="Province"
                                 value={fields.location.state}
                                 onChange={handleChange}
                             />
                             {errors['location.state'] && <p className='text-red-500 text-sm'>{errors['location.state']}</p>}
-                            <input
-                                type="text"
-                                id="zipcode"
-                                name="location.zipcode"
-                                className="border rounded w-full py-2 px-3 mb-2"
-                                placeholder="Zipcode"
-                                value={fields.location.zipcode}
-                                onChange={handleChange}
-                            />
-                            {errors['location.zipcode'] && <p className='text-red-500 text-sm'>{errors['location.zipcode']}</p>}
                         </div>
 
                         <div className="mb-4 flex flex-wrap">
