@@ -22,9 +22,11 @@ const ProfilePage = () => {
                 return;
             }
             try {
+                console.log('[profile] fetching properties for userId:', userId);
                 const res = await fetch(`/api/properties/user/${userId}`);
                 if (res.status == 200) {
                     const data = await res.json();
+                    console.log('[profile] properties count:', Array.isArray(data) ? data.length : 'not-array');
                     setProperties(data);
                 }
             } catch (error) {
@@ -35,6 +37,7 @@ const ProfilePage = () => {
         }
         // fetch user properties when session is available
         if (session?.user?.id) {
+            console.log('[profile] session.user.id:', session.user.id);
             fetchUserProperties(session.user.id);
         }
     }, [session]);

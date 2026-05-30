@@ -13,6 +13,7 @@ export const GET = async (request,{params})=>{
         }
 
         const properties = await Property.find({owner:userId});
+        console.log('[api/properties/user] userId:', userId, 'count:', properties.length);
         return new Response(JSON.stringify(properties),{status:200});
     }catch(error){
         console.log(error);
