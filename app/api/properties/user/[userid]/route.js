@@ -6,14 +6,13 @@ export const GET = async (request,{params})=>{
     try{
         await connectDB();
 
-        // console.log(params);
-        const {userId} = await params;
+        const userId = params?.userId || request.nextUrl.pathname.split('/').pop();
         if(!userId){
             return new Response('User ID is required',{status:400});
         }
 
         const properties = await Property.find({owner:userId});
-        console.log('[api/properties/user] userId:', userId, 'count:', properties.length);
+        console.log('[api/properties/user] userId:', userId, 'count:', properties.length, 'pathname:', request.nextUrl.pathname, 'params:', params);
         return new Response(JSON.stringify(properties),{status:200});
     }catch(error){
         console.log(error);
