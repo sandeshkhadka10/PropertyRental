@@ -10,21 +10,29 @@ export const GET = async(request)=>{
         const location = searchParams.get('location');
         const propertyType = searchParams.get('propertyType');
 
-        // console.log(location,propertyType);
+        const locationTerms = (location || '')
+            .split(/[,\s]+/)
+            .map((term) => term.trim())
+            .filter(Boolean);
 
-        // Match location pattern against database field
-        // here i make it case insensitive
-        const locationPattern = new RegExp(location,'i');
+        let query = {};
 
-        // returns all properties where any of the following fields match the location search
-        let query = {
-            // $or operator tells MongoDB to match if at least one condition is true
-            $or:[
-                {name:locationPattern},
-                {description:locationPattern},
-                {'location.city':locationPattern},
-                {'location.state':locationPattern}
-            ],
+        if(locationTerms.length > 0){
+            // Each search term must appear in at least one searchable field.
+            query.$and = locationTerms.map((term) => {
+                const locationPattern = new RegExp(term, 'i');
+
+                return {
+                    $or:[
+                        {name:locationPattern},
+                        {description:locationPattern},
+                        {'location.city':locationPattern},
+                        {'location.state':locationPattern},
+                        {'location.street':locationPattern},
+                        {'location.zipcode':locationPattern}
+                    ]
+                };
+            });
         }
 
         // only check for property if its not 'All'
