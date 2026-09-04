@@ -1,86 +1,67 @@
 import Image from "next/image";
 import Link from "next/link";
-import {FaBed, FaBath, FaRulerCombined, FaMoneyBill, FaMapMarker} from 'react-icons/fa';
+import {FaBed, FaBath, FaRulerCombined, FaMapMarker} from 'react-icons/fa';
+import PropertyRating from '@/components/PropertyRating';
+import PropertyAvailabilityBadge from '@/components/PropertyAvailabilityBadge';
+import {formatRateDisplay} from '@/utils/formatCurrency';
 
 const PropertyCard = ({ property }) => {
-    const getRateDisplay = ()=>{
-        const {rates} = property;
-        if(rates.monthly){
-          return `${rates.monthly.toLocaleString()}/mo`;  
-        }else if(rates.weekly){
-            return `${rates.weekly.toLocaleString()}/wek`;
-        }else if(rates.nightly){
-            return `${rates.nightly.toLocaleString()}/night`;
-        }
-    }
     return (
-        <div className="rounded-xl shadow-md relative">
-            <Image
-                src={property.images[0]}
-                alt=""
-                height={0}
-                width={0}
-                sizes="100vw"
-                className='w-full h-auto rounded-t-xl'
+        <div className="rounded-xl shadow-md relative overflow-hidden">
+            {/* a fixed aspect ratio keeps every card in the grid the same
+                height, whatever shape the uploaded photo happens to be */}
+            <div className="relative aspect-[4/3]">
+                <Image
+                    src={property.images[0]}
+                    alt=""
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className='object-cover'
+                />
+            </div>
+            {/* nothing is drawn for a free listing, so the corner stays clear */}
+            <PropertyAvailabilityBadge
+                availability={property.availability}
+                className="absolute top-[10px] left-[10px] shadow-sm"
             />
+            <h3
+                className="absolute top-[10px] right-[10px] bg-white px-3 py-1 rounded-lg text-blue-500 font-bold text-sm"
+            >
+                {formatRateDisplay(property.rates)}
+            </h3>
+
             <div className="p-4">
-                <div className="text-left md:text-center lg:text-left mb-6">
-                    <div className="text-gray-600">{property.type}</div>
-                    <h3 className="text-xl font-bold">{property.name}</h3>
-                </div>
-                <h3
-                    className="absolute top-[10px] right-[10px] bg-white px-4 py-2 rounded-lg text-blue-500 font-bold text-right md:text-center lg:text-right"
-                >
-                    ₨{getRateDisplay()}
-                </h3>
+                <div className="text-gray-600 text-sm">{property.type}</div>
+                <h3 className="text-lg font-bold truncate">{property.name}</h3>
+                <PropertyRating property={property} className="mt-1" />
 
-                <div className="flex justify-center gap-4 text-gray-500 mb-4">
-                    <p>
-                        <FaBed className="inline mr-2"></FaBed>{property.beds}
-                        <span className="md:hidden lg:inline">Beds</span>
-                    </p>
-                    <p>
-                        <FaBath className="inline mr-2"></FaBath>{property.baths}
-                        <span className="md:hidden lg:inline">Baths</span>
-                    </p>
-                    <p>
-                        <FaRulerCombined className="inline mr-2"></FaRulerCombined>{property.square_feet}
-                        <span className="md:hidden lg:inline">Sqrt</span>
-                    </p>
+                <div className="flex items-center gap-4 text-gray-500 text-sm mt-3">
+                    <span><FaBed className="inline mr-1"></FaBed>{property.beds}</span>
+                    <span><FaBath className="inline mr-1"></FaBath>{property.baths}</span>
+                    <span><FaRulerCombined className="inline mr-1"></FaRulerCombined>{property.square_feet}</span>
                 </div>
 
-                <div
-                    className="flex justify-center gap-4 text-green-900 text-sm mb-4"
-                >
-                    {property.rates.monthly && (
-                        <p><FaMoneyBill className="inline mr-2"></FaMoneyBill>Monthly</p>
-                    )}
-                    {property.rates.weekly && (
-                        <p><FaMoneyBill className="inline mr-2"></FaMoneyBill>Weekly</p>
-                    )}
-                    {property.rates.nightly && (
-                        <p><FaMoneyBill className="inline mr-2"></FaMoneyBill>Nightly</p>
-                    )}
-                </div>
-
-                <div className="border border-gray-100 mb-5"></div>
-
-                <div className="flex flex-col lg:flex-row justify-between mb-4">
-                    <div className="flex align-middle gap-2 mb-4 lg:mb-0">
-                        <FaMapMarker className="text-orange-700 mt-1"></FaMapMarker>
-                        <span className="text-orange-700"> {property.location.city} {property.location.state} </span>
-                    </div>
+                <div className="flex items-center justify-between gap-2 mt-3">
+                    <span className="flex items-center gap-1 text-orange-700 text-sm min-w-0">
+                        <FaMapMarker className="shrink-0"></FaMapMarker>
+                        <span className="truncate">{property.location.city} {property.location.state}</span>
+                        {/* only present on a "near me" search, which is the one
+                            place the API returns a distance */}
+                        {typeof property.distance === 'number' && (
+                            <span className="text-gray-500 whitespace-nowrap">
+                                · {property.distance} km
+                            </span>
+                        )}
+                    </span>
                     <Link
                         href={`/properties/${property._id}`}
-                        className="h-[36px] bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-center text-sm"
+                        className="shrink-0 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-center text-sm"
                     >
                         Details
                     </Link>
                 </div>
             </div>
         </div>
-
-
     )
 }
 

@@ -1,13 +1,15 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import logo from '@/assets/images/logo-white.png';
 import profileDefault from '@/assets/images/profile.png';
 import Link from 'next/link';
-import { FaGoogle } from 'react-icons/fa';
+import { FaGoogle, FaEnvelope } from 'react-icons/fa';
 import { usePathname } from 'next/navigation';
-import { signIn, signOut, useSession, getProviders } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import UnreadMessageCount from '@/components/UnreadMessageCount';
+import NotificationCount from '@/components/NotificationCount';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const Navbar = () => {
     // useSession-> to access the session data (who's logged in, user info etc)
@@ -17,34 +19,21 @@ const Navbar = () => {
     // using optional chaining to access nested object properties
     const profileImage = session?.user?.image;
 
+    // the session callback reads the role from the database, so this is only a
+    // display decision - /admin is guarded by middleware and by the routes
+    const isAdmin = session?.user?.role === 'admin';
+
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-
-    // providers-> holds the data of your available authentication
-    // providers like Google
-    const [providers, setProviders] = useState(false);
-
 
     const pathname = usePathname();
     // console.log(pathname);
 
-    useEffect(() => {
-        const setAuthProviders = async () => {
-            // getProvider-> simply returns a list of the available authentication 
-            // providers (like Google, GitHub, Credentials, etc.) that 
-            // you’ve configured in your authOptions.
-            const res = await getProviders();
-            setProviders(res);
-        }
-        setAuthProviders();
-    }, []);
-
-    // console.log(providers);
-    // console.log(session);
-    // console.log(profileImage);
+    // the list of auth providers is fetched by the /login page now, this only
+    // needs a link over to it
 
     return (
-        <nav className='bg-blue-700 border-b border-blue-500'>
+        <nav className='bg-blue-700 border-b border-blue-500 dark:bg-blue-950 dark:border-blue-900'>
             <div className='mx-auto max-w-7xl px-2 sm:px-6 lg:px-8'>
                 <div className='relative flex h-20 items-center justify-between'>
                     <div className='absolute inset-y-0 left-0 flex items-center md:hidden'>
@@ -100,12 +89,29 @@ const Navbar = () => {
                                 >
                                     Properties
                                 </Link>
+                                {/* shown signed out as well - the middleware sends
+                                    anonymous visitors to /login and brings them back
+                                    here once they have signed in */}
+                                <Link
+                                    href='/properties/add'
+                                    className={`${pathname === '/properties/add' ? 'bg-black' : ''} text-white hover:bg-gray-900 hover:text-white rounded-md px-3 py-2`}
+                                >
+                                    Add Property
+                                </Link>
                                 {session && (
                                     <Link
-                                        href='/properties/add'
-                                        className={`${pathname === '/properties/add' ? 'bg-black' : ''} text-white hover:bg-gray-900 hover:text-white rounded-md px-3 py-2`}
+                                        href='/bookings'
+                                        className={`${pathname === '/bookings' ? 'bg-black' : ''} text-white hover:bg-gray-900 hover:text-white rounded-md px-3 py-2`}
                                     >
-                                        Add Property
+                                        Bookings
+                                    </Link>
+                                )}
+                                {isAdmin && (
+                                    <Link
+                                        href='/admin'
+                                        className={`${pathname.startsWith('/admin') ? 'bg-black' : ''} text-white hover:bg-gray-900 hover:text-white rounded-md px-3 py-2`}
+                                    >
+                                        Admin
                                     </Link>
                                 )}
 
@@ -113,25 +119,40 @@ const Navbar = () => {
                         </div>
                     </div>
 
-                    {/* <!-- Right Side Menu (Logged Out) --> */}
-                    {!session && (
-                        <div className='hidden md:block md:ml-6'>
-                            <div className='flex items-center'>
-                                {providers && Object.values(providers).map((provider, index) => (
-                                    <button onClick={() => signIn(provider.id)} key={index} className='flex items-center text-white bg-gray-700 hover:bg-gray-900 hover:text-white rounded-md px-3 py-2'>
-                                        <FaGoogle className='text-white mr-2' />
-                                        <span>Login or Register</span>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                    {/* <!-- Right Side Menu --> */}
+                    {/* one container for both signed in and signed out so the
+                        theme toggle keeps its place either way */}
+                    <div className='absolute inset-y-0 right-0 flex items-center gap-3 pr-2 md:static md:inset-auto md:ml-6 md:pr-0'>
+                        <ThemeToggle />
 
+                        {!session && (
+                            /* the sign in screen lives at /login now, so the
+                               provider buttons are all in one place */
+                            <Link
+                                href='/login'
+                                className='hidden md:flex items-center text-white bg-gray-700 hover:bg-gray-900 hover:text-white rounded-md px-3 py-2'
+                            >
+                                <FaGoogle className='text-white mr-2' />
+                                <span>Login or Register</span>
+                            </Link>
+                        )}
 
-                    {/* <!-- Right Side Menu (Logged In) --> */}
-                    {session && (
-                        <div className='absolute inset-y-0 right-0 flex items-center pr-2 md:static md:inset-auto md:ml-6 md:pr-0'>
+                        {session && (
+                        <>
+                            {/* Messages keeps the envelope, the bell next to it
+                                is what actually carries notifications now */}
                             <Link href='/messages' className='relative group'>
+                                <button
+                                    type='button'
+                                    className='relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800'
+                                >
+                                    <span className='absolute -inset-1.5'></span>
+                                    <span className='sr-only'>View messages</span>
+                                    <FaEnvelope className='h-6 w-6 p-0.5' />
+                                </button>
+                                <UnreadMessageCount session={session}/>
+                            </Link>
+                            <Link href='/notifications' className='relative group'>
                                 <button
                                     type='button'
                                     className='relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800'
@@ -153,10 +174,10 @@ const Navbar = () => {
                                         />
                                     </svg>
                                 </button>
-                                <UnreadMessageCount session={session}/>
+                                <NotificationCount session={session}/>
                             </Link>
                             {/* <!-- Profile dropdown button --> */}
-                            <div className='relative ml-3'>
+                            <div className='relative'>
                                 <div>
                                     <button
                                         type='button'
@@ -212,6 +233,20 @@ const Navbar = () => {
                                         >
                                             Saved Properties
                                         </Link>
+                                        {isAdmin && (
+                                            <Link
+                                                href='/admin'
+                                                className='block px-4 py-2 text-sm text-gray-700'
+                                                role='menuitem'
+                                                tabIndex='-1'
+                                                id='user-menu-item-3'
+                                                onClick={()=>{
+                                                    setIsProfileMenuOpen(false);
+                                                }}
+                                            >
+                                                Admin Panel
+                                            </Link>
+                                        )}
                                         <button
                                             href='#'
                                             className='block px-4 py-2 text-sm text-gray-700'
@@ -220,7 +255,10 @@ const Navbar = () => {
                                             id='user-menu-item-2'
                                             onClick={()=>{
                                                 setIsProfileMenuOpen(false);
-                                                signOut();
+                                                // Without an explicit callback next-auth returns to the
+                                                // current page, which the middleware then bounces to the
+                                                // sign-in screen when it was a protected one.
+                                                signOut({ callbackUrl: '/' });
                                             }}
                                         >
                                             Sign Out
@@ -229,8 +267,9 @@ const Navbar = () => {
                                 )}
 
                             </div>
-                        </div>
-                    )}
+                        </>
+                        )}
+                    </div>
 
                 </div>
             </div>
@@ -251,22 +290,37 @@ const Navbar = () => {
                         >
                             Properties
                         </Link>
+                        <Link
+                            href='/properties/add'
+                            className={`${pathname === '/properties/add' ? 'bg-black' : ''} text-white block rounded-md px-3 py-2 text-base font-medium`}
+                        >
+                            Add Property
+                        </Link>
                         {session && (
                             <Link
-                                href='/properties/add'
-                                className={`${pathname === '/properties/add' ? 'bg-black' : ''} text-white block rounded-md px-3 py-2 text-base font-medium`}
+                                href='/bookings'
+                                className={`${pathname === '/bookings' ? 'bg-black' : ''} text-white block rounded-md px-3 py-2 text-base font-medium`}
                             >
-                                Add Property
+                                Bookings
                             </Link>
                         )}
-                        {!session &&
-                            providers && Object.values(providers).map((provider, index) => (
-                                <button onClick={() => signIn(provider.id)} key={index} className='flex items-center text-white bg-gray-700 hover:bg-gray-900 hover:text-white rounded-md px-3 py-2'>
-                                    <FaGoogle className='text-white mr-2' />
-                                    <span>Login or Register</span>
-                                </button>
-                            ))
-                        }
+                        {isAdmin && (
+                            <Link
+                                href='/admin'
+                                className={`${pathname.startsWith('/admin') ? 'bg-black' : ''} text-white block rounded-md px-3 py-2 text-base font-medium`}
+                            >
+                                Admin
+                            </Link>
+                        )}
+                        {!session && (
+                            <Link
+                                href='/login'
+                                className='flex items-center text-white bg-gray-700 hover:bg-gray-900 hover:text-white rounded-md px-3 py-2'
+                            >
+                                <FaGoogle className='text-white mr-2' />
+                                <span>Login or Register</span>
+                            </Link>
+                        )}
 
                     </div>
                 </div>

@@ -8,10 +8,16 @@ const GlobalContext = createContext();
 export function GlobalProvider({children}){
     const [unreadMessageCount,setUnreadMessageCount] = useState(0);
 
+    // drives the badge on the navbar bell. Kept here rather than in the bell
+    // itself so the notifications page can decrement it as rows are read.
+    const [unreadNotificationCount,setUnreadNotificationCount] = useState(0);
+
     return(
         <GlobalContext.Provider value={{
             unreadMessageCount,
-            setUnreadMessageCount
+            setUnreadMessageCount,
+            unreadNotificationCount,
+            setUnreadNotificationCount
         }}>
             {children}
         </GlobalContext.Provider>

@@ -14,6 +14,9 @@ export const getSessionUser = async () => {
     return {
       user: session.user,
       userId: session.user.id,
+      // the session callback reads this straight from the database on every
+      // call, so it is current rather than whatever was true at sign in
+      role: session.user.role || 'tenant',
     };
   } catch (error) {
     console.error(error);

@@ -13,9 +13,11 @@ import {
 const ShareButtons = ({property}) => {
     const shareUrl = `${process.env.NEXT_PUBLIC_DOMAIN}/properties/${property._id}`;
     return (
-        <>
-          <h3 className='text-xl font-bold text-center pt-2'>Share this property:</h3>
-          <div className='flex gap-3 justify-center pb-5'>
+        // a card like the rest of the sidebar, so the icons do not float loose
+        // on the page background
+        <div className='bg-white rounded-xl shadow-md p-6'>
+          <h3 className='text-xl font-bold text-center'>Share this property</h3>
+          <div className='flex gap-3 justify-center pt-4'>
             <FacebookShareButton
              url={shareUrl}
              quote={property.name}
@@ -49,7 +51,7 @@ const ShareButtons = ({property}) => {
             </EmailShareButton>
 
           </div>
-        </>
+        </div>
     )
 }
 

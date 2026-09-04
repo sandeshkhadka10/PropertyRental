@@ -4,6 +4,7 @@ import {useParams,useRouter} from 'next/navigation';
 import {toast} from 'react-toastify';
 import {fetchProperty} from '@/utils/requests.js';
 import {propertySchema} from '@/lib/propertySchema';
+import {PROPERTY_TYPES,resolvePropertyType} from '@/lib/propertyTypes';
 
 const PropertyEditForm = () =>{
     const {id} = useParams();
@@ -27,9 +28,7 @@ const PropertyEditForm = () =>{
         square_feet:'',
         amenities:[],
         rates:{
-            weekly:'',
-            monthly:'',
-            nightly:'',
+            daily:'',
         },
         seller_info:{
             name:'',
@@ -110,19 +109,20 @@ const PropertyEditForm = () =>{
             try{
                 const propertyData = await fetchProperty(id);
 
-                // check for null values in rates and if it is null then make empty string
-                if(propertyData && propertyData.rates){
-                    const defaultRates = {...propertyData.rates}; // get all the rates previous data
-                    for(const rate in defaultRates){
-                        if(defaultRates[rate] === null){
-                            defaultRates[rate] = '';
-                        }
-                    }
-                    propertyData.rates = defaultRates;
+                // The day rate is the only one a listing has now, and the input
+                // needs a string to stay controlled. A listing that predates
+                // the switch has no `daily` yet, so it opens with an empty box
+                // for the owner to fill in, and its old weekly/monthly rates
+                // are dropped on save.
+                if(propertyData){
+                    propertyData.rates = {daily: propertyData.rates?.daily ?? ''};
                 }
 
                 setFields((prevFields) => ({
                     ...propertyData,
+                    // a listing saved under a retired type (Condo, Chalet, ...)
+                    // opens on its replacement instead of a blank dropdown
+                    type: resolvePropertyType(propertyData?.type),
                     location: {
                         ...prevFields.location,
                         ...(propertyData.location || {}),
@@ -164,11 +164,6 @@ const PropertyEditForm = () =>{
             setErrors((prevErrors) => {
                 const newErrors = { ...prevErrors };
                 delete newErrors[`${outerKey}.${innerKey}`];
-
-                // If it's a rates field, also clear the parent rates error
-                if (outerKey === 'rates') {
-                    delete newErrors['rates'];
-                }
                 return newErrors;
             });
 
@@ -240,9 +235,7 @@ const PropertyEditForm = () =>{
                 square_feet: fields.square_feet,
                 amenities: fields.amenities,
                 rates: {
-                    weekly: fields.rates.weekly,
-                    monthly: fields.rates.monthly,
-                    nightly: fields.rates.nightly
+                    daily: fields.rates.daily
                 },
                 seller_info: {
                     name: fields.seller_info.name,
@@ -278,10 +271,12 @@ const PropertyEditForm = () =>{
             });
 
             if(res.status === 200){
-                toast.success('Property Updated Successfully');
+                // an owner's edit sends the listing back through moderation, so
+                // say so rather than letting it quietly vanish from the site
+                toast.success('Property updated. It goes back to an admin for review before it is live again.');
                 router.push(`/properties/${id}`);
             }else if(res.status === 401 || res.status === 403){
-                toast.error('Permission Denied');
+                toast.error(await res.text() || 'Permission Denied');
             }else{
                 toast.error('Something went wrong');
             }
@@ -327,13 +322,9 @@ const PropertyEditForm = () =>{
                                 onChange={handleChange}
                             >
                                 <option value=''>Select Type</option>
-                                <option value="Apartment">Apartment</option>
-                                <option value="Condo">Condo</option>
-                                <option value="House">House</option>
-                                <option value="Cabin Or Cottage">Cabin or Cottage</option>
-                                <option value="Room">Room</option>
-                                <option value="Studio">Studio</option>
-                                <option value="Other">Other</option>
+                                {PROPERTY_TYPES.map((option)=>(
+                                    <option key={option.value} value={option.value}>{option.label}</option>
+                                ))}
                             </select>
                             {errors.type && <p className='text-red-500 text-sm'>{errors.type}</p>}
                         </div>
@@ -651,50 +642,22 @@ const PropertyEditForm = () =>{
                         </div>
 
                         <div className="mb-4 bg-blue-50 p-4">
-                            <label className="block text-gray-700 font-bold mb-2"
-                            >Rates</label
+                            <label htmlFor="daily_rate" className="block text-gray-700 font-bold mb-2"
+                            >Rate Per Day</label
                             >
-                            <div
-                                className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4"
-                            >
-                                <div className="flex items-center">
-                                    <label htmlFor="weekly_rate" className="mr-2">Weekly</label>
-                                    <input
-                                        type="number"
-                                        id="weekly_rate"
-                                        name="rates.weekly"
-                                        className="border rounded w-full py-2 px-3"
-                                        value={fields.rates.weekly}
-                                        onChange={handleChange}
-                                    />
-                                    {errors['rates.weekly'] && <p className='text-red-500 text-sm ml-2'>{errors['rates.weekly']}</p>}
-                                </div>
-                                <div className="flex items-center">
-                                    <label htmlFor="monthly_rate" className="mr-2">Monthly</label>
-                                    <input
-                                        type="number"
-                                        id="monthly_rate"
-                                        name="rates.monthly"
-                                        className="border rounded w-full py-2 px-3"
-                                        value={fields.rates.monthly}
-                                        onChange={handleChange}
-                                    />
-                                    {errors['rates.monthly'] && <p className='text-red-500 text-sm ml-2'>{errors['rates.monthly']}</p>}
-                                </div>
-                                <div className="flex items-center">
-                                    <label htmlFor="nightly_rate" className="mr-2">Nightly</label>
-                                    <input
-                                        type="number"
-                                        id="nightly_rate"
-                                        name="rates.nightly"
-                                        className="border rounded w-full py-2 px-3"
-                                        value={fields.rates.nightly}
-                                        onChange={handleChange}
-                                    />
-                                    {errors['rates.nightly'] && <p className='text-red-500 text-sm ml-2'>{errors['rates.nightly']}</p>}
-                                </div>
-                            </div>
-                            {errors.rates && <p className='text-red-500 text-sm mt-2'>{errors.rates}</p>}
+                            <input
+                                type="number"
+                                id="daily_rate"
+                                name="rates.daily"
+                                className="border rounded w-full py-2 px-3"
+                                placeholder="eg. 1500"
+                                value={fields.rates.daily}
+                                onChange={handleChange}
+                            />
+                            <p className='text-gray-600 text-sm mt-1'>
+                                Charged for each day of the stay. A guest checks out by 12:00 on their last day.
+                            </p>
+                            {errors['rates.daily'] && <p className='text-red-500 text-sm mt-1'>{errors['rates.daily']}</p>}
                         </div>
 
                         <div className="mb-4">

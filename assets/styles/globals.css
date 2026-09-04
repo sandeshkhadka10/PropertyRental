@@ -1,1 +1,369 @@
 @import "tailwindcss";
+
+/* Class based dark mode, driven by the `dark` class that ThemeScript/ThemeProvider
+   put on <html>.
+
+   `:is(.dark, .dark *)` rather than the `:where(...)` shown in the Tailwind docs
+   is deliberate: `:is()` keeps its specificity, so a `dark:` utility written on a
+   component sits one step above the compatibility layer at the bottom of this
+   file and always wins over the automatic mapping. */
+@custom-variant dark (&:is(.dark, .dark *));
+
+/* ---------------------------------------------------------------------------
+   Theme tokens
+
+   Light keeps the palette the app already used (white surfaces, gray-700 body
+   text) so nothing changes visually in the default theme.
+   --------------------------------------------------------------------------- */
+:root {
+    --pr-bg: #ffffff;
+    --pr-surface: #ffffff;
+    --pr-surface-2: #f3f4f6;
+    --pr-surface-3: #e5e7eb;
+    --pr-border: #e5e7eb;
+    --pr-field: #ffffff;
+    --pr-fg: #374151;
+    --pr-fg-strong: #111827;
+    --pr-fg-muted: #6b7280;
+    --pr-fg-subtle: #9ca3af;
+}
+
+.dark {
+    --pr-bg: #0b1120;
+    --pr-surface: #151d2b;
+    --pr-surface-2: #1b2433;
+    --pr-surface-3: #253040;
+    --pr-border: #2e3a4d;
+    --pr-field: #121a27;
+    --pr-fg: #dbe2ec;
+    --pr-fg-strong: #f4f7fb;
+    --pr-fg-muted: #a3aec0;
+    --pr-fg-subtle: #7d889a;
+}
+
+/* Semantic utilities (bg-surface, text-content, border-subtle, ...) for new
+   markup. `inline` keeps the var reference in the utility so it follows the
+   theme instead of baking in the light value. */
+@theme inline {
+    --color-page: var(--pr-bg);
+    --color-surface: var(--pr-surface);
+    --color-surface-muted: var(--pr-surface-2);
+    --color-surface-strong: var(--pr-surface-3);
+    --color-subtle: var(--pr-border);
+    --color-content: var(--pr-fg);
+    --color-content-strong: var(--pr-fg-strong);
+    --color-content-muted: var(--pr-fg-muted);
+    --color-content-subtle: var(--pr-fg-subtle);
+}
+
+@layer base {
+    /* native widgets - scrollbars, date pickers, the bare `border rounded`
+       inputs in the property forms - follow color-scheme */
+    html {
+        color-scheme: light;
+    }
+
+    html.dark {
+        color-scheme: dark;
+    }
+
+    body {
+        background-color: var(--pr-bg);
+        color: var(--pr-fg);
+    }
+
+    /* Tailwind v4 leaves an uncoloured `border` on currentColor, which in dark
+       mode is near-white text - too loud for the card and input outlines that
+       rely on it. Light mode keeps the stock behaviour. */
+    :where(.dark) *,
+    :where(.dark) ::before,
+    :where(.dark) ::after {
+        border-color: var(--pr-border);
+    }
+
+    /* form controls that carry no colour utilities of their own. Kept in the
+       base layer so any explicit `bg-*` utility on a field still wins. */
+    :where(.dark) input:not([type='checkbox'], [type='radio'], [type='range'], [type='color'], [type='file']),
+    :where(.dark) select,
+    :where(.dark) textarea {
+        background-color: var(--pr-field);
+        color: var(--pr-fg-strong);
+    }
+
+    :where(.dark) ::placeholder {
+        color: var(--pr-fg-subtle);
+    }
+}
+
+/* ---------------------------------------------------------------------------
+   Dark mode compatibility layer
+
+   The app was written against the raw Tailwind palette (bg-white,
+   text-gray-700, bg-blue-50 ...). Rather than hand-annotate every one of those
+   with a `dark:` twin, each utility is remapped here to its dark equivalent.
+
+   Every selector is `:where(.dark)` + the utility's own selector, so it matches
+   the utility's specificity exactly and wins only because it comes later in the
+   `utilities` layer. A `dark:` class on a component outranks all of it.
+
+   Strong colour utilities (bg-blue-500, bg-red-600, bg-gray-800, bg-black ...)
+   are intentionally left alone: they already carry white text and read fine on
+   a dark page.
+   --------------------------------------------------------------------------- */
+@layer utilities {
+    /* --- surfaces --------------------------------------------------------- */
+    :where(.dark) .bg-white {
+        background-color: var(--pr-surface);
+    }
+
+    :where(.dark) .bg-gray-50,
+    :where(.dark) .bg-gray-100 {
+        background-color: var(--pr-surface-2);
+    }
+
+    :where(.dark) .bg-gray-200,
+    :where(.dark) .bg-gray-300 {
+        background-color: var(--pr-surface-3);
+    }
+
+    :where(.dark) .hover\:bg-white:hover,
+    :where(.dark) .hover\:bg-gray-50:hover,
+    :where(.dark) .hover\:bg-gray-100:hover {
+        background-color: var(--pr-surface-3);
+    }
+
+    :where(.dark) .hover\:bg-gray-200:hover,
+    :where(.dark) .hover\:bg-gray-300:hover {
+        background-color: var(--pr-border);
+    }
+
+    /* --- body text -------------------------------------------------------- */
+    :where(.dark) .text-gray-900 {
+        color: var(--pr-fg-strong);
+    }
+
+    :where(.dark) .text-gray-800,
+    :where(.dark) .text-gray-700 {
+        color: var(--pr-fg);
+    }
+
+    :where(.dark) .text-gray-600,
+    :where(.dark) .text-gray-500 {
+        color: var(--pr-fg-muted);
+    }
+
+    :where(.dark) .text-gray-400 {
+        color: var(--pr-fg-subtle);
+    }
+
+    /* --- borders ---------------------------------------------------------- */
+    :where(.dark) .border-gray-100,
+    :where(.dark) .border-gray-200,
+    :where(.dark) .border-gray-300 {
+        border-color: var(--pr-border);
+    }
+
+    :where(.dark) .divide-gray-200 > * {
+        border-color: var(--pr-border);
+    }
+
+    /* elevation reads as a hairline edge on a dark page - a drop shadow does
+       not, so cards get an outline instead */
+    :where(.dark) .shadow,
+    :where(.dark) .shadow-md,
+    :where(.dark) .shadow-lg,
+    :where(.dark) .shadow-xl {
+        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.6), 0 0 0 1px var(--pr-border);
+    }
+
+    /* --- accent tints ------------------------------------------------------
+       Badges and alert panels are all built as `bg-<hue>-50/100`,
+       `border-<hue>-200`, `text-<hue>-700/800`. The tints become the hue mixed
+       into the surface, and the paired text lightens to the same hue's 300/400.
+       ---------------------------------------------------------------------- */
+    :where(.dark) .bg-blue-50 {
+        background-color: color-mix(in oklab, var(--color-blue-500) 14%, var(--pr-surface));
+    }
+
+    :where(.dark) .bg-blue-100 {
+        background-color: color-mix(in oklab, var(--color-blue-500) 22%, var(--pr-surface));
+    }
+
+    :where(.dark) .hover\:bg-blue-50:hover,
+    :where(.dark) .hover\:bg-blue-100:hover {
+        background-color: color-mix(in oklab, var(--color-blue-500) 30%, var(--pr-surface));
+    }
+
+    :where(.dark) .border-blue-100,
+    :where(.dark) .border-blue-200,
+    :where(.dark) .border-blue-300 {
+        border-color: color-mix(in oklab, var(--color-blue-500) 35%, var(--pr-surface));
+    }
+
+    :where(.dark) .text-blue-500,
+    :where(.dark) .text-blue-600 {
+        color: var(--color-blue-400);
+    }
+
+    :where(.dark) .text-blue-700,
+    :where(.dark) .text-blue-800 {
+        color: var(--color-blue-300);
+    }
+
+    :where(.dark) .text-blue-900 {
+        color: var(--color-blue-200);
+    }
+
+    :where(.dark) .hover\:text-blue-500:hover,
+    :where(.dark) .hover\:text-blue-600:hover {
+        color: var(--color-blue-300);
+    }
+
+    :where(.dark) .hover\:text-blue-700:hover,
+    :where(.dark) .hover\:text-blue-800:hover {
+        color: var(--color-blue-200);
+    }
+
+    :where(.dark) .bg-red-50 {
+        background-color: color-mix(in oklab, var(--color-red-500) 14%, var(--pr-surface));
+    }
+
+    :where(.dark) .bg-red-100 {
+        background-color: color-mix(in oklab, var(--color-red-500) 22%, var(--pr-surface));
+    }
+
+    :where(.dark) .hover\:bg-red-50:hover,
+    :where(.dark) .hover\:bg-red-100:hover {
+        background-color: color-mix(in oklab, var(--color-red-500) 30%, var(--pr-surface));
+    }
+
+    :where(.dark) .border-red-100,
+    :where(.dark) .border-red-200,
+    :where(.dark) .border-red-300 {
+        border-color: color-mix(in oklab, var(--color-red-500) 35%, var(--pr-surface));
+    }
+
+    :where(.dark) .text-red-500,
+    :where(.dark) .text-red-600 {
+        color: var(--color-red-400);
+    }
+
+    :where(.dark) .text-red-700,
+    :where(.dark) .text-red-800 {
+        color: var(--color-red-300);
+    }
+
+    :where(.dark) .text-red-900 {
+        color: var(--color-red-200);
+    }
+
+    :where(.dark) .bg-green-50 {
+        background-color: color-mix(in oklab, var(--color-green-500) 14%, var(--pr-surface));
+    }
+
+    :where(.dark) .bg-green-100 {
+        background-color: color-mix(in oklab, var(--color-green-500) 22%, var(--pr-surface));
+    }
+
+    :where(.dark) .border-green-100,
+    :where(.dark) .border-green-200,
+    :where(.dark) .border-green-300 {
+        border-color: color-mix(in oklab, var(--color-green-500) 35%, var(--pr-surface));
+    }
+
+    :where(.dark) .text-green-500,
+    :where(.dark) .text-green-600 {
+        color: var(--color-green-400);
+    }
+
+    :where(.dark) .text-green-700,
+    :where(.dark) .text-green-800 {
+        color: var(--color-green-300);
+    }
+
+    :where(.dark) .text-green-900 {
+        color: var(--color-green-200);
+    }
+
+    :where(.dark) .bg-yellow-50 {
+        background-color: color-mix(in oklab, var(--color-yellow-500) 14%, var(--pr-surface));
+    }
+
+    :where(.dark) .bg-yellow-100 {
+        background-color: color-mix(in oklab, var(--color-yellow-500) 22%, var(--pr-surface));
+    }
+
+    :where(.dark) .border-yellow-100,
+    :where(.dark) .border-yellow-200,
+    :where(.dark) .border-yellow-300 {
+        border-color: color-mix(in oklab, var(--color-yellow-500) 35%, var(--pr-surface));
+    }
+
+    :where(.dark) .text-yellow-600 {
+        color: var(--color-yellow-400);
+    }
+
+    :where(.dark) .text-yellow-700,
+    :where(.dark) .text-yellow-800 {
+        color: var(--color-yellow-300);
+    }
+
+    :where(.dark) .text-yellow-900 {
+        color: var(--color-yellow-200);
+    }
+
+    :where(.dark) .bg-amber-50 {
+        background-color: color-mix(in oklab, var(--color-amber-500) 14%, var(--pr-surface));
+    }
+
+    :where(.dark) .bg-amber-100 {
+        background-color: color-mix(in oklab, var(--color-amber-500) 22%, var(--pr-surface));
+    }
+
+    :where(.dark) .border-amber-100,
+    :where(.dark) .border-amber-200,
+    :where(.dark) .border-amber-300 {
+        border-color: color-mix(in oklab, var(--color-amber-500) 35%, var(--pr-surface));
+    }
+
+    :where(.dark) .text-amber-600 {
+        color: var(--color-amber-400);
+    }
+
+    :where(.dark) .text-amber-700,
+    :where(.dark) .text-amber-800 {
+        color: var(--color-amber-300);
+    }
+
+    :where(.dark) .text-amber-900 {
+        color: var(--color-amber-200);
+    }
+
+    :where(.dark) .bg-orange-50 {
+        background-color: color-mix(in oklab, var(--color-orange-500) 14%, var(--pr-surface));
+    }
+
+    :where(.dark) .bg-orange-100 {
+        background-color: color-mix(in oklab, var(--color-orange-500) 22%, var(--pr-surface));
+    }
+
+    :where(.dark) .border-orange-100,
+    :where(.dark) .border-orange-200,
+    :where(.dark) .border-orange-300 {
+        border-color: color-mix(in oklab, var(--color-orange-500) 35%, var(--pr-surface));
+    }
+
+    :where(.dark) .text-orange-500,
+    :where(.dark) .text-orange-600 {
+        color: var(--color-orange-400);
+    }
+
+    :where(.dark) .text-orange-700,
+    :where(.dark) .text-orange-800 {
+        color: var(--color-orange-300);
+    }
+
+    :where(.dark) .text-orange-900 {
+        color: var(--color-orange-200);
+    }
+}

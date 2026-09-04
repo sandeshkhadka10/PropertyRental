@@ -1,24 +1,43 @@
 'use client'
-import{useState} from 'react';
+import{useEffect, useState} from 'react';
 import {useRouter} from 'next/navigation';
+import {PROPERTY_TYPES} from '@/lib/propertyTypes';
 
 const PropertyFormSearch = () => {
     const [location, setLocation] = useState('');
-    const [propertyType, setPropertyType] = useState('');
+    const [propertyType, setPropertyType] = useState('All');
 
     const router = useRouter();
 
+    // On the results page this form sits above the results it produced, so it
+    // starts out showing whatever the URL is currently searching for. Read after
+    // mount rather than through useSearchParams, which would force every page
+    // that renders this form behind a Suspense boundary.
+    useEffect(()=>{
+        const params = new URLSearchParams(window.location.search);
+        setLocation(params.get('location') || '');
+        setPropertyType(params.get('propertyType') || 'All');
+    },[]);
+
     const handleSubmit  = (e)=>{
         e.preventDefault();
-        // console.log(location,propertyType);
 
         // made the api to search the property based on location and property type
         if(location === '' && propertyType === 'All'){
             router.push('/properties');
-        }else{
-            const query = `?location=${encodeURIComponent(location)}&propertyType=${encodeURIComponent(propertyType)}`;
-            router.push(`/properties/search-results${query}`);
+            return;
         }
+
+        // Merge into the current query string instead of replacing it, so the
+        // price/beds/amenity filters survive a new keyword search.
+        const params = new URLSearchParams(window.location.search);
+        params.set('location',location);
+        params.set('propertyType',propertyType);
+
+        // a new search starts at the first page of results
+        params.delete('page');
+
+        router.push(`/properties/search-results?${params.toString()}`);
     }
     return (
         <form onSubmit={handleSubmit}
@@ -44,14 +63,9 @@ const PropertyFormSearch = () => {
                     onChange={(e) => setPropertyType(e.target.value)}
                 >
                     <option value="All">All</option>
-                    <option value="Apartment">Apartment</option>
-                    <option value="Studio">Studio</option>
-                    <option value="Condo">Condo</option>
-                    <option value="House">House</option>
-                    <option value="Cabin Or Cottage">Cabin or Cottage</option>
-                    <option value="Loft">Loft</option>
-                    <option value="Room">Room</option>
-                    <option value="Other">Other</option>
+                    {PROPERTY_TYPES.map((option)=>(
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
                 </select>
             </div>
             <button

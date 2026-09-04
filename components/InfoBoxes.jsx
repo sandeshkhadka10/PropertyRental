@@ -13,7 +13,7 @@ const InfoBoxes = () => {
                         {
                             text:'Browse Properties',
                             link:'/properties',
-                            backgroundColor:'bg-black'
+                            backgroundColor:'bg-black dark:bg-blue-600'
                         }
                      }
                     >

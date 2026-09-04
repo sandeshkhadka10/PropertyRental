@@ -2,9 +2,12 @@ import '@/assets/styles/globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import AuthProvider from '@/components/AuthProvider';
-import { ToastContainer } from 'react-toastify';
+import ThemedToastContainer from '@/components/ThemedToastContainer';
 import 'react-toastify/dist/ReactToastify.css';
 import { GlobalProvider } from '@/context/GlobalContext';
+import { ThemeProvider } from '@/components/ThemeProvider';
+import ThemeScript from '@/components/ThemeScript';
+import ChatBot from '@/components/ChatBot';
 import 'photoswipe/dist/photoswipe.css';
 
 export const metadata = {
@@ -17,19 +20,29 @@ const MainLayout = ({ children }) => {
     return (
         <GlobalProvider>
             <AuthProvider>
-                <html lang="en">
-                    <body className="min-h-screen flex flex-col">
-                        <Navbar />
+                <ThemeProvider>
+                    {/* the boot script adds the `dark` class before hydration,
+                        which React would otherwise flag as a mismatch */}
+                    <html lang="en" suppressHydrationWarning>
+                        <body className="min-h-screen flex flex-col">
+                            <ThemeScript />
 
-                        <main className="flex-grow">
-                            {children}
-                        </main>
+                            <Navbar />
 
-                        <Footer />
+                            <main className="flex-grow">
+                                {children}
+                            </main>
 
-                        <ToastContainer />
-                    </body>
-                </html>
+                            <Footer />
+
+                            {/* floats over every page, so help is reachable
+                                without leaving whatever the visitor is doing */}
+                            <ChatBot />
+
+                            <ThemedToastContainer />
+                        </body>
+                    </html>
+                </ThemeProvider>
             </AuthProvider>
         </GlobalProvider>
     )

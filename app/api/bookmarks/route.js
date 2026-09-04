@@ -2,6 +2,8 @@ import connectDB from "@/config/database";
 import User from "@/models/User";
 import Property from "@/models/Property";
 import { getSessionUser } from "@/utils/getSessionUser";
+import { publicPropertyQuery } from "@/utils/propertyVisibility";
+import { withAvailability } from "@/utils/loadPropertyAvailability";
 
 // these is used during the deployment
 // since i have to look these data freshly to check whether it is real or not
@@ -63,10 +65,13 @@ export const GET = async () => {
 
     const user = await User.findOne({_id:userId});
 
-    // Get users bookmarks from the user modal which is inside the user array
-    const bookmarks = await Property.find({_id:{$in: user.bookmarks}});
+    // Get users bookmarks from the user modal which is inside the user array.
+    // A saved listing that was since flagged or taken down drops out of here.
+    const bookmarks = await Property.find(
+      publicPropertyQuery({_id:{$in: user.bookmarks}})
+    );
 
-    return new Response(JSON.stringify(bookmarks),{status:200});
+    return new Response(JSON.stringify(await withAvailability(bookmarks)),{status:200});
   } catch (error) {
     console.log(error);
     return new Response('Something went wrong',{status:500});

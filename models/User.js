@@ -13,6 +13,14 @@ const UserSchema = new Schema({
     image:{
         type:String
     },
+    // tenant  -> can browse, bookmark and message (default for a new signup)
+    // landlord-> everything a tenant can do, plus listing properties
+    // admin   -> everything, plus the moderation panel at /admin
+    role:{
+        type:String,
+        enum:['tenant','landlord','admin'],
+        default:'tenant'
+    },
     bookmarks:[
         {
             type:Schema.Types.ObjectId,

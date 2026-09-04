@@ -3,23 +3,14 @@ import {
     FaBed,
     FaBath,
     FaRulerCombined,
-    FaMoneyBill,
     FaMapMarker
 } from 'react-icons/fa';
 import Image from 'next/image';
+import PropertyRating from '@/components/PropertyRating';
+import PropertyAvailabilityBadge from '@/components/PropertyAvailabilityBadge';
+import {formatRateDisplay} from '@/utils/formatCurrency';
 
 const FeaturedPropertyCard = ({ property }) => {
-    const getRateDisplay = () => {
-        const { rates } = property;
-        if (rates.monthly) {
-            return `${rates.monthly.toLocaleString()}/mo`;
-        } else if (rates.weekly) {
-            return `${rates.weekly.toLocaleString()}/wek`;
-        } else if (rates.nightly) {
-            return `${rates.nightly.toLocaleString()}/night`;
-        }
-    }
-
     return (
         <div
             className="bg-white rounded-xl shadow-md relative flex flex-col md:flex-row"
@@ -32,13 +23,19 @@ const FeaturedPropertyCard = ({ property }) => {
                 sizes='100vw'
                 className="object-cover rounded-t-xl md:rounded-tr-none md:rounded-l-xl w-full md:w-2/5"
             />
+            {/* the rate sits top left on this card, so this goes opposite it */}
+            <PropertyAvailabilityBadge
+                availability={property.availability}
+                className="absolute top-[10px] right-[10px] shadow-sm"
+            />
             <div className="p-6">
                 <h3 className="text-xl font-bold">{property.name}</h3>
-                <div className="text-gray-600 mb-4">{property.type}</div>
+                <div className="text-gray-600">{property.type}</div>
+                <PropertyRating property={property} className="mb-4 mt-1" />
                 <h3
                     className="absolute top-[10px] left-[10px] bg-white px-4 py-2 rounded-lg text-blue-500 font-bold text-right md:text-center lg:text-right"
                 >
-                    ₨{getRateDisplay()}
+                    {formatRateDisplay(property.rates)}
                 </h3>
                 <div className="flex justify-center gap-4 text-gray-500 mb-4">
                     <p>
@@ -53,20 +50,6 @@ const FeaturedPropertyCard = ({ property }) => {
                         <FaRulerCombined className='inline-block mr-2' />
                         {property.square_feet}{' '} <span className="md:hidden lg:inline">sqft</span>
                     </p>
-                </div>
-
-                <div
-                    className="flex justify-center gap-4 text-green-900 text-sm mb-4"
-                >
-                    {property.rates.monthly && (
-                        <p><FaMoneyBill className="inline mr-2"></FaMoneyBill>Monthly</p>
-                    )}
-                    {property.rates.weekly && (
-                        <p><FaMoneyBill className="inline mr-2"></FaMoneyBill>Weekly</p>
-                    )}
-                    {property.rates.nightly && (
-                        <p><FaMoneyBill className="inline mr-2"></FaMoneyBill>Nightly</p>
-                    )}
                 </div>
 
                 <div className="border border-gray-200 mb-5"></div>

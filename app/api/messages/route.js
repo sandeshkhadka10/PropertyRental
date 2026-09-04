@@ -54,12 +54,16 @@ export const GET = async()=>{
         const readMessages = await Message.find({recipient:userId, read:true})
          .sort({created:-1}) // sort read messages in asc order
          .populate('sender','username')
-         .populate('property','name');
+         .populate('property','name')
+         // a reply carries the message it answers, so the reader is reminded of
+         // what they wrote without leaving the page
+         .populate('replyTo','body');
 
         const unreadMessages = await Message.find({recipient:userId, read:false})
          .sort({created:-1}) // sort unread messages in asc order
          .populate('sender','username')
-         .populate('property','name');
+         .populate('property','name')
+         .populate('replyTo','body');
 
         const messages = [...readMessages,...unreadMessages];
 

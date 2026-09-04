@@ -101,7 +101,7 @@ const PropertyContactForm = ({ property }) => {
     return (
         <div>
             {/* <!-- Contact Form --> */}
-            <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="bg-white p-6 rounded-xl shadow-md">
                 <h3 className="text-xl font-bold mb-6">Contact Property Manager</h3>
                 {!session ?
                     (

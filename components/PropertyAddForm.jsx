@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import { propertySchema } from '@/lib/propertySchema';
+import { PROPERTY_TYPES } from '@/lib/propertyTypes';
 
 const PropertyAddForm = () => {
     // here i am using mounted to make sure the UI renders
@@ -23,9 +24,7 @@ const PropertyAddForm = () => {
         square_feet: '',
         amenities: [],
         rates: {
-            weekly: '',
-            monthly: '',
-            nightly: '',
+            daily: '',
         },
         seller_info: {
             name: '',
@@ -36,7 +35,15 @@ const PropertyAddForm = () => {
     });
     const [errors, setErrors] = useState({});
     const [locationStatus, setLocationStatus] = useState('idle');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isProcessingImages, setIsProcessingImages] = useState(false);
     const router = useRouter();
+
+    // kept in step with the limits the API enforces in app/api/properties/route.js
+    const MAX_IMAGES = 4;
+    const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+    // longest edge a listing photo is kept at, plenty for the gallery
+    const MAX_IMAGE_DIMENSION = 1600;
 
     const getCurrentPosition = (options) =>
         new Promise((resolve, reject) => {
@@ -130,11 +137,6 @@ const PropertyAddForm = () => {
             setErrors((prevErrors) => {
                 const newErrors = { ...prevErrors };
                 delete newErrors[`${outerKey}.${innerKey}`];
-
-                // If it's a rates field, also clear the parent rates error
-                if (outerKey === 'rates') {
-                    delete newErrors['rates'];
-                }
                 return newErrors;
             });
 
@@ -184,22 +186,87 @@ const PropertyAddForm = () => {
         });
     }
 
-    const handleImageChange = (e) => {
+    // Straight off a phone a photo is several megabytes, and four of them made a
+    // request too big and slow to finish. A listing never displays them larger
+    // than this, so they are scaled down before they are ever uploaded. Anything
+    // that cannot be decoded is sent as it came.
+    const compressImage = (file) =>
+        new Promise((resolve) => {
+            if (!file.type.startsWith('image/')) {
+                resolve(file);
+                return;
+            }
+
+            const objectUrl = URL.createObjectURL(file);
+            const image = new window.Image();
+
+            image.onload = () => {
+                URL.revokeObjectURL(objectUrl);
+
+                const scale = Math.min(1, MAX_IMAGE_DIMENSION / Math.max(image.width, image.height));
+                const canvas = document.createElement('canvas');
+                canvas.width = Math.round(image.width * scale);
+                canvas.height = Math.round(image.height * scale);
+
+                const context = canvas.getContext('2d');
+                context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+                canvas.toBlob(
+                    (blob) => {
+                        // keep the original if compressing somehow made it bigger
+                        if (!blob || blob.size >= file.size) {
+                            resolve(file);
+                            return;
+                        }
+                        const name = file.name.replace(/\.[^.]+$/, '') + '.jpg';
+                        resolve(new File([blob], name, { type: 'image/jpeg' }));
+                    },
+                    'image/jpeg',
+                    0.82
+                );
+            };
+
+            image.onerror = () => {
+                URL.revokeObjectURL(objectUrl);
+                resolve(file);
+            };
+
+            image.src = objectUrl;
+        });
+
+    const handleImageChange = async (e) => {
         const { files } = e.target;
         // console.log(files);
 
-        // Clone images array
-        const updatedImages = [...fields.images];
+        // The picker replaces the selection rather than adding to it, otherwise
+        // choosing four photos twice silently pushes the list over the limit
+        const selectedFiles = Array.from(files);
 
-        // Add new files to the array
-        for (const file of files) {
-            updatedImages.push(file);
+        if (selectedFiles.length === 0) {
+            return;
+        }
+
+        if (selectedFiles.length > MAX_IMAGES) {
+            toast.error(`You can upload at most ${MAX_IMAGES} images`);
+            e.target.value = '';
+            return;
+        }
+
+        setIsProcessingImages(true);
+        const selectedImages = await Promise.all(selectedFiles.map(compressImage));
+        setIsProcessingImages(false);
+
+        const oversized = selectedImages.find((file) => file.size > MAX_IMAGE_BYTES);
+        if (oversized) {
+            toast.error(`"${oversized.name}" is larger than ${MAX_IMAGE_BYTES / (1024 * 1024)}MB. Please choose a smaller image.`);
+            e.target.value = '';
+            return;
         }
 
         // Update state with array of images
         setFields((prevFields) => ({
             ...prevFields,
-            images: updatedImages
+            images: selectedImages
         }));
 
         // clear error message for images when images is selected
@@ -212,6 +279,10 @@ const PropertyAddForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (isSubmitting) {
+            return;
+        }
 
         try {
             setErrors({}); // clear the previous errors
@@ -232,9 +303,7 @@ const PropertyAddForm = () => {
                 square_feet: fields.square_feet,
                 amenities: fields.amenities,
                 rates: {
-                    weekly: fields.rates.weekly,
-                    monthly: fields.rates.monthly,
-                    nightly: fields.rates.nightly
+                    daily: fields.rates.daily
                 },
                 seller_info: {
                     name: fields.seller_info.name,
@@ -263,19 +332,27 @@ const PropertyAddForm = () => {
                 }
             }
 
+            // uploading several photos takes a few seconds, so the button has to
+            // show it is working instead of looking like nothing happened
+            setIsSubmitting(true);
+
             const res = await fetch(`/api/properties`, {
                 method: 'POST',
                 body: formData
             });
 
             if (res.ok) {
-                toast.success('Property Added Successfully');
-                router.push('/properties');
-            } else if (res.status === 401 || res.status === 403) {
-                toast.error('Permission Denied');
-            } else {
-                toast.error('Something went wrong');
+                // it is not live yet, so send them to their listings where the
+                // pending badge explains what happens next
+                toast.success('Property submitted. An admin will review it before it goes live.');
+                router.push('/profile');
+                return;
             }
+
+            // the route replies with a plain text reason for the cases the user
+            // can act on, such as too many or too large images
+            const message = await res.text();
+            toast.error(message || 'Something went wrong');
         } catch (error) {
             // console.log('Full error:', error); // Debug log
 
@@ -288,13 +365,15 @@ const PropertyAddForm = () => {
                 });
                 setErrors(fieldErrors);
                 // console.log('Validation errors:', fieldErrors); // Debug log
-                // toast.error('Please fix the validation errors');
+                toast.error('Please fix the highlighted fields');
                 return;
             }
 
             // Handle other errors
             toast.error('Something went wrong');
             console.log(error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -320,13 +399,9 @@ const PropertyAddForm = () => {
                     onChange={handleChange}
                 >
                     <option value=''>Select Type</option>
-                    <option value="Apartment">Apartment</option>
-                    <option value="Condo">Condo</option>
-                    <option value="House">House</option>
-                    <option value="Cabin Or Cottage">Cabin or Cottage</option>
-                    <option value="Room">Room</option>
-                    <option value="Studio">Studio</option>
-                    <option value="Other">Other</option>
+                    {PROPERTY_TYPES.map((option)=>(
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
                 </select>
                 {errors.type && <p className='text-red-500 text-sm'>{errors.type}</p>}
             </div>
@@ -644,50 +719,22 @@ const PropertyAddForm = () => {
             </div>
 
             <div className="mb-4 bg-blue-50 p-4">
-                <label className="block text-gray-700 font-bold mb-2"
-                >Rates</label
+                <label htmlFor="daily_rate" className="block text-gray-700 font-bold mb-2"
+                >Rate Per Day</label
                 >
-                <div
-                    className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4"
-                >
-                    <div className="flex items-center">
-                        <label htmlFor="weekly_rate" className="mr-2">Weekly</label>
-                        <input
-                            type="number"
-                            id="weekly_rate"
-                            name="rates.weekly"
-                            className="border rounded w-full py-2 px-3"
-                            value={fields.rates.weekly}
-                            onChange={handleChange}
-                        />
-                    {errors['rates.weekly'] && <p className='text-red-500 text-sm ml-2'>{errors['rates.weekly']}</p>}
-                    </div>
-                    <div className="flex items-center">
-                        <label htmlFor="monthly_rate" className="mr-2">Monthly</label>
-                        <input
-                            type="number"
-                            id="monthly_rate"
-                            name="rates.monthly"
-                            className="border rounded w-full py-2 px-3"
-                            value={fields.rates.monthly}
-                            onChange={handleChange}
-                        />
-                    {errors['rates.monthly'] && <p className='text-red-500 text-sm ml-2'>{errors['rates.monthly']}</p>}
-                    </div>
-                    <div className="flex items-center">
-                        <label htmlFor="nightly_rate" className="mr-2">Nightly</label>
-                        <input
-                            type="number"
-                            id="nightly_rate"
-                            name="rates.nightly"
-                            className="border rounded w-full py-2 px-3"
-                            value={fields.rates.nightly}
-                            onChange={handleChange}
-                        />
-                    {errors['rates.nightly'] && <p className='text-red-500 text-sm ml-2'>{errors['rates.nightly']}</p>}
-                    </div>
-                </div>
-                {errors.rates && <p className='text-red-500 text-sm mt-2'>{errors.rates}</p>}
+                <input
+                    type="number"
+                    id="daily_rate"
+                    name="rates.daily"
+                    className="border rounded w-full py-2 px-3"
+                    placeholder="eg. 1500"
+                    value={fields.rates.daily}
+                    onChange={handleChange}
+                />
+                <p className='text-gray-600 text-sm mt-1'>
+                    Charged for each day of the stay. A guest checks out by 12:00 on their last day.
+                </p>
+                {errors['rates.daily'] && <p className='text-red-500 text-sm mt-1'>{errors['rates.daily']}</p>}
             </div>
 
             <div className="mb-4">
@@ -755,15 +802,24 @@ const PropertyAddForm = () => {
                     multiple
                     onChange={handleImageChange}
                 />
+                {isProcessingImages && (
+                    <p className='text-sm text-gray-600 mt-1'>Preparing images...</p>
+                )}
+                {!isProcessingImages && fields.images.length > 0 && (
+                    <p className='text-sm text-gray-600 mt-1'>
+                        {fields.images.length} image{fields.images.length > 1 ? 's' : ''} selected
+                    </p>
+                )}
                 {errors.images && <p className='text-red-500 text-sm'>{errors.images}</p>}
             </div>
 
             <div>
                 <button
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline"
+                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline disabled:opacity-60 disabled:cursor-not-allowed"
                     type="submit"
+                    disabled={isSubmitting || isProcessingImages}
                 >
-                    Add Property
+                    {isSubmitting ? 'Adding Property...' : 'Add Property'}
                 </button>
             </div>
         </form>

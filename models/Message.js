@@ -30,6 +30,12 @@ const MessageSchema = new Schema({
     body:{
         type:String
     },
+    // set when this message was written as a reply from the messages page and
+    // points at the message being answered, so the reader sees what it is about
+    replyTo:{
+        type:Schema.Types.ObjectId,
+        ref:'Message'
+    },
     read:{
         // to mark the message if read
         type:Boolean,

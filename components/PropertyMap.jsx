@@ -6,6 +6,7 @@ import { setDefaults, fromAddress } from 'react-geocode';
 import Spinner from './Spinner';
 import Image from 'next/image';
 import pin from '@/assets/images/pin.svg';
+import { useTheme } from '@/components/ThemeProvider';
 
 const PropertyMap = ({ property }) => {
   const [lat, setLat] = useState(null);
@@ -19,6 +20,7 @@ const PropertyMap = ({ property }) => {
   });
   const [loading, setLoading] = useState(true);
   const [geocodeError, setGeocodeError] = useState(false);
+  const { resolvedTheme } = useTheme();
 
   setDefaults({
     key: process.env.NEXT_PUBLIC_GOOGLE_GEOCODING_API_KEY,
@@ -103,7 +105,11 @@ const PropertyMap = ({ property }) => {
           zoom: 15,
         }}
         style={{ width: '100%', height: 500 }}
-        mapStyle='mapbox://styles/mapbox/streets-v9'
+        mapStyle={
+          resolvedTheme === 'dark'
+            ? 'mapbox://styles/mapbox/dark-v11'
+            : 'mapbox://styles/mapbox/streets-v9'
+        }
       >
         <Marker longitude={lng} latitude={lat} anchor='bottom'>
           <Image src={pin} alt='location' width={40} height={40} />
