@@ -38,7 +38,7 @@ const FeaturedPropertyCard = ({ property }) => {
                 <h3
                     className="absolute top-[10px] left-[10px] bg-white px-4 py-2 rounded-lg text-blue-500 font-bold text-right md:text-center lg:text-right"
                 >
-                    ${getRateDisplay()}
+                    ₨{getRateDisplay()}
                 </h3>
                 <div className="flex justify-center gap-4 text-gray-500 mb-4">
                     <p>
